@@ -45,13 +45,12 @@ def XNAS_Cifar10(data_path, split, backend='custom', batch_size=256, num_workers
             assert not len(current_indices) == 0, "Length of indices is zero!"
             _sampler = torch.utils.data.sampler.SubsetRandomSampler(
                 current_indices)
-            _data_loader = torch.utils.data.DataLoader(
-                dataset=train_data,
-                batch_size=batch_size,
-                sampler=_sampler,
-                num_workers=num_workers,
-                pin_memory=True
-            )
+            _data_loader = torch.utils.data.DataLoader(train_data,
+                                                       batch_size=batch_size,
+                                                       sampler=_sampler,
+                                                       num_workers=num_workers,
+                                                       pin_memory=True
+                                                       )
             data_loaders.append(_data_loader)
             pre_partition = current_partition
             pre_index = current_index
