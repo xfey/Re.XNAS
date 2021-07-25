@@ -41,15 +41,16 @@ def XNAS_Cifar10(data_path, split, backend='custom', batch_size=256, num_workers
         for _split in split:
             current_partition = pre_partition + _split
             current_index = int(num_train * current_partition)
-            current_indices = indices[pre_index : current_index]
+            current_indices = indices[pre_index: current_index]
             assert not len(current_indices) == 0, "Length of indices is zero!"
-            _sampler = torch.utils.data.sampler.SubsetRandomSampler(current_indices)
+            _sampler = torch.utils.data.sampler.SubsetRandomSampler(
+                current_indices)
             _data_loader = torch.utils.data.DataLoader(
-                dataset = train_data,
-                batch_size = batch_size,
-                sampler = _sampler,
-                num_workers = num_workers,
-                pin_memory = True
+                dataset=train_data,
+                batch_size=batch_size,
+                sampler=_sampler,
+                num_workers=num_workers,
+                pin_memory=True
             )
             data_loaders.append(_data_loader)
             pre_partition = current_partition
@@ -63,13 +64,15 @@ class Cifar10(torch.utils.data.Dataset):
     """CIFAR-10 dataset."""
 
     def __init__(self, data_path, split):
-        assert os.path.exists(data_path), "Data path '{}' not found".format(data_path)
+        assert os.path.exists(
+            data_path), "Data path '{}' not found".format(data_path)
         splits = ["train", "test"]
-        assert split in splits, "Split '{}' not supported for cifar".format(split)
+        assert split in splits, "Split '{}' not supported for cifar".format(
+            split)
         logger.info("Constructing CIFAR-10 {}...".format(split))
         self._data_path, self._split = data_path, split
         self._inputs, self._labels = self._load_data()
-    
+
     def _load_data(self):
         """Loads data into memory."""
         logger.info("{} data path: {}".format(self._split, self._data_path))
@@ -88,9 +91,10 @@ class Cifar10(torch.utils.data.Dataset):
             labels += data[b"labels"]
         # Combine and reshape the inputs
         inputs = np.vstack(inputs).astype(np.float32)
-        inputs = inputs.reshape((-1, 3, cfg.SEARCH.IM_SIZE, cfg.SEARCH.IM_SIZE))
+        inputs = inputs.reshape(
+            (-1, 3, cfg.SEARCH.IM_SIZE, cfg.SEARCH.IM_SIZE))
         return inputs, labels
-    
+
     def _prepare_im(self, im):
         """Prepares the image for network input."""
         im = transforms.color_norm(im, _MEAN, _SD)
@@ -99,7 +103,7 @@ class Cifar10(torch.utils.data.Dataset):
             im = transforms.random_crop(
                 im=im, size=cfg.SEARCH.IM_SIZE, pad_size=4)
         return im
-    
+
     def __getitem__(self, index):
         im, label = self._inputs[index, ...].copy(), self._labels[index]
         im = self._prepare_im(im)
