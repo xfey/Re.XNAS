@@ -1,4 +1,4 @@
-from xnas.search_space.cellbased_ops import *
+from xnas.search_space.cellbased_basic_ops import *
 
 
 class DartsCell(nn.Module):

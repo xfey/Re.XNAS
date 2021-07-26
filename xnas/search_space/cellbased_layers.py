@@ -11,7 +11,8 @@ class ConvBnRelu(nn.Module):
         super(ConvBnRelu, self).__init__()
 
         self.op = nn.Sequential(
-            nn.Conv2d(C_in, C_out, kernel_size, stride=stride, padding=padding, bias=False),
+            nn.Conv2d(C_in, C_out, kernel_size, stride=stride,
+                      padding=padding, bias=False),
             nn.BatchNorm2d(C_out, affine=True, momentum=0.997, eps=1e-5),
             nn.ReLU(inplace=False)
         )
@@ -24,7 +25,8 @@ class Conv3x3BnRelu(nn.Module):
 
     def __init__(self, channels, stride):
         super(Conv3x3BnRelu, self).__init__()
-        self.op = ConvBnRelu(C_in=channels, C_out=channels, kernel_size=3, stride=stride)
+        self.op = ConvBnRelu(C_in=channels, C_out=channels,
+                             kernel_size=3, stride=stride)
 
     def forward(self, x):
         return self.op(x)
@@ -34,7 +36,8 @@ class Conv1x1BnRelu(nn.Module):
 
     def __init__(self, channels, stride):
         super(Conv1x1BnRelu, self).__init__()
-        self.op = ConvBnRelu(C_in=channels, C_out=channels, kernel_size=1, stride=stride, padding=0)
+        self.op = ConvBnRelu(C_in=channels, C_out=channels,
+                             kernel_size=1, stride=stride, padding=0)
 
     def forward(self, x):
         return self.op(x)
