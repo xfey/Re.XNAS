@@ -1,4 +1,4 @@
-from cellbased_ops import *
+from xnas.search_space.cellbased_ops import *
 
 
 # This module is used for NAS-Bench-201, represents a small search space with a complete DAG
@@ -18,10 +18,10 @@ class NASBench201Cell(nn.Module):
             for j in range(i):
                 node_str = '{:}<-{:}'.format(i, j)
                 if j == 0:
-                    self.edges[node_str] = _MixedOp(
+                    self.edges[node_str] = MixedOp(
                         C_in, C_out, stride, basic_op_list)
                 else:
-                    self.edges[node_str] = _MixedOp(
+                    self.edges[node_str] = MixedOp(
                         C_in, C_out, 1, basic_op_list)
         self.edge_keys = sorted(list(self.edges.keys()))
         self.edge2index = {key: i for i, key in enumerate(self.edge_keys)}

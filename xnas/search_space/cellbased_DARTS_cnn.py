@@ -1,4 +1,4 @@
-from cellbased_ops import *
+from xnas.search_space.cellbased_ops import *
 
 
 class DartsCell(nn.Module):
@@ -32,7 +32,7 @@ class DartsCell(nn.Module):
             for j in range(2+i):  # include 2 input nodes
                 # reduction should be used only for input node
                 stride = 2 if reduction and j < 2 else 1
-                op = _MixedOp(C, C, stride, self.basic_op_list)
+                op = MixedOp(C, C, stride, self.basic_op_list)
                 self.dag[i].append(op)
 
     def forward(self, s0, s1, sample):

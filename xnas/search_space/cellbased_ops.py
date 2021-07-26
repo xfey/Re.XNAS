@@ -1,4 +1,4 @@
-from cellbased_layers import *
+from xnas.search_space.cellbased_layers import *
 
 
 OPS_ = {
@@ -82,7 +82,7 @@ def parse_from_numpy(alpha, k, basic_op_list=None):
     return gene
 
 
-class _MixedOp(nn.Module):
+class MixedOp(nn.Module):
     """ define the basic search space operation according to string """
 
     def __init__(self, C_in, C_out, stride, basic_op_list=None):
