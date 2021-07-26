@@ -5,19 +5,61 @@ import torch.nn.functional as F
 from collections import namedtuple
 
 
-class ReLUConvBN(nn.Module):
+class ConvBnRelu(nn.Module):
 
-    def __init__(self, C_in, C_out, kernel_size, stride, padding, affine=True):
-        super(ReLUConvBN, self).__init__()
+    def __init__(self, C_in, C_out, kernel_size, stride, padding=1):
+        super(ConvBnRelu, self).__init__()
+
         self.op = nn.Sequential(
-            nn.ReLU(inplace=False),
-            nn.Conv2d(C_in, C_out, kernel_size, stride=stride,
-                      padding=padding, bias=False),
-            nn.BatchNorm2d(C_out, affine=affine)
+            nn.Conv2d(C_in, C_out, kernel_size, stride=stride, padding=padding, bias=False),
+            nn.BatchNorm2d(C_out, affine=True, momentum=0.997, eps=1e-5),
+            nn.ReLU(inplace=False)
         )
 
     def forward(self, x):
         return self.op(x)
+
+
+class Conv3x3BnRelu(nn.Module):
+
+    def __init__(self, channels, stride):
+        super(Conv3x3BnRelu, self).__init__()
+        self.op = ConvBnRelu(C_in=channels, C_out=channels, kernel_size=3, stride=stride)
+
+    def forward(self, x):
+        return self.op(x)
+
+
+class Conv1x1BnRelu(nn.Module):
+
+    def __init__(self, channels, stride):
+        super(Conv1x1BnRelu, self).__init__()
+        self.op = ConvBnRelu(C_in=channels, C_out=channels, kernel_size=1, stride=stride, padding=0)
+
+    def forward(self, x):
+        return self.op(x)
+
+
+class DilConv(nn.Module):
+    """ (Dilated) depthwise separable conv
+    ReLU - (Dilated) depthwise separable - Pointwise - BN
+
+    If dilation == 2, 3x3 conv => 5x5 receptive field
+                      5x5 conv => 9x9 receptive field
+    """
+
+    def __init__(self, C_in, C_out, kernel_size, stride, padding, dilation, affine=True):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.ReLU(),
+            nn.Conv2d(C_in, C_in, kernel_size, stride, padding, dilation=dilation, groups=C_in,
+                      bias=False),
+            nn.Conv2d(C_in, C_out, 1, stride=1, padding=0, bias=False),
+            nn.BatchNorm2d(C_out, affine=affine)
+        )
+
+    def forward(self, x):
+        return self.net(x)
 
 
 def drop_path_(x, drop_prob, training):
@@ -30,6 +72,7 @@ def drop_path_(x, drop_prob, training):
 
 
 class DropPath_(nn.Module):
+
     def __init__(self, p=0.):
         """ [!] DropPath is inplace module
         Args:
@@ -44,6 +87,57 @@ class DropPath_(nn.Module):
     def forward(self, x):
         drop_path_(x, self.p, self.training)
 
+        return x
+
+
+class FacConv(nn.Module):
+    """ Factorized conv
+    ReLU - Conv(Kx1) - Conv(1xK) - BN
+    """
+
+    def __init__(self, C_in, C_out, kernel_length, stride, padding, affine=True):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.ReLU(),
+            nn.Conv2d(C_in, C_in, (kernel_length, 1),
+                      stride, padding, bias=False),
+            nn.Conv2d(C_in, C_out, (1, kernel_length),
+                      stride, padding, bias=False),
+            nn.BatchNorm2d(C_out, affine=affine)
+        )
+
+    def forward(self, x):
+        return self.net(x)
+
+
+class FactorizedReduce(nn.Module):
+    """
+    Reduce feature map size by factorized pointwise(stride=2).
+    """
+
+    def __init__(self, C_in, C_out, affine=True):
+        super().__init__()
+        assert C_out % 2 == 0, "C_out should be even!"
+        self.relu = nn.ReLU()
+        self.conv1 = nn.Conv2d(C_in, C_out // 2, 1,
+                               stride=2, padding=0, bias=False)
+        self.conv2 = nn.Conv2d(C_in, C_out // 2, 1,
+                               stride=2, padding=0, bias=False)
+        self.bn = nn.BatchNorm2d(C_out, affine=affine)
+
+    def forward(self, x):
+        x = self.relu(x)
+        out = torch.cat([self.conv1(x), self.conv2(x[:, :, 1:, 1:])], dim=1)
+        out = self.bn(out)
+        return out
+
+
+class Identity(nn.Module):
+
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, x):
         return x
 
 
@@ -74,63 +168,19 @@ class PoolBN(nn.Module):
         return out
 
 
-class StdConv(nn.Module):
-    """ Standard conv
-    ReLU - Conv - BN
-    """
+class ReLUConvBN(nn.Module):
 
     def __init__(self, C_in, C_out, kernel_size, stride, padding, affine=True):
-        super().__init__()
-        self.net = nn.Sequential(
-            nn.ReLU(),
-            nn.Conv2d(C_in, C_out, kernel_size, stride, padding, bias=False),
+        super(ReLUConvBN, self).__init__()
+        self.op = nn.Sequential(
+            nn.ReLU(inplace=False),
+            nn.Conv2d(C_in, C_out, kernel_size, stride=stride,
+                      padding=padding, bias=False),
             nn.BatchNorm2d(C_out, affine=affine)
         )
 
     def forward(self, x):
-        return self.net(x)
-
-
-class FacConv(nn.Module):
-    """ Factorized conv
-    ReLU - Conv(Kx1) - Conv(1xK) - BN
-    """
-
-    def __init__(self, C_in, C_out, kernel_length, stride, padding, affine=True):
-        super().__init__()
-        self.net = nn.Sequential(
-            nn.ReLU(),
-            nn.Conv2d(C_in, C_in, (kernel_length, 1),
-                      stride, padding, bias=False),
-            nn.Conv2d(C_in, C_out, (1, kernel_length),
-                      stride, padding, bias=False),
-            nn.BatchNorm2d(C_out, affine=affine)
-        )
-
-    def forward(self, x):
-        return self.net(x)
-
-
-class DilConv(nn.Module):
-    """ (Dilated) depthwise separable conv
-    ReLU - (Dilated) depthwise separable - Pointwise - BN
-
-    If dilation == 2, 3x3 conv => 5x5 receptive field
-                      5x5 conv => 9x9 receptive field
-    """
-
-    def __init__(self, C_in, C_out, kernel_size, stride, padding, dilation, affine=True):
-        super().__init__()
-        self.net = nn.Sequential(
-            nn.ReLU(),
-            nn.Conv2d(C_in, C_in, kernel_size, stride, padding, dilation=dilation, groups=C_in,
-                      bias=False),
-            nn.Conv2d(C_in, C_out, 1, stride=1, padding=0, bias=False),
-            nn.BatchNorm2d(C_out, affine=affine)
-        )
-
-    def forward(self, x):
-        return self.net(x)
+        return self.op(x)
 
 
 class SepConv(nn.Module):
@@ -151,12 +201,21 @@ class SepConv(nn.Module):
         return self.net(x)
 
 
-class Identity(nn.Module):
-    def __init__(self):
+class StdConv(nn.Module):
+    """ Standard conv
+    ReLU - Conv - BN
+    """
+
+    def __init__(self, C_in, C_out, kernel_size, stride, padding, affine=True):
         super().__init__()
+        self.net = nn.Sequential(
+            nn.ReLU(),
+            nn.Conv2d(C_in, C_out, kernel_size, stride, padding, bias=False),
+            nn.BatchNorm2d(C_out, affine=affine)
+        )
 
     def forward(self, x):
-        return x
+        return self.net(x)
 
 
 class Zero(nn.Module):
@@ -170,24 +229,3 @@ class Zero(nn.Module):
 
         # re-sizing by stride
         return x[:, :, ::self.stride, ::self.stride] * 0.
-
-
-class FactorizedReduce(nn.Module):
-    """
-    Reduce feature map size by factorized pointwise(stride=2).
-    """
-
-    def __init__(self, C_in, C_out, affine=True):
-        super().__init__()
-        self.relu = nn.ReLU()
-        self.conv1 = nn.Conv2d(C_in, C_out // 2, 1,
-                               stride=2, padding=0, bias=False)
-        self.conv2 = nn.Conv2d(C_in, C_out // 2, 1,
-                               stride=2, padding=0, bias=False)
-        self.bn = nn.BatchNorm2d(C_out, affine=affine)
-
-    def forward(self, x):
-        x = self.relu(x)
-        out = torch.cat([self.conv1(x), self.conv2(x[:, :, 1:, 1:])], dim=1)
-        out = self.bn(out)
-        return out
