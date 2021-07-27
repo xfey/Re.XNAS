@@ -7,7 +7,7 @@ from collections import OrderedDict
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from xnas.search_space.utils import make_divisible, get_same_padding, SEModule, Hswish, Hsigmoid, build_activation
+from xnas.search_space.utils import make_divisible, get_same_padding, Hswish, Hsigmoid, build_activation
 
 
 class ShuffleLayer(nn.Module):
@@ -473,6 +473,29 @@ class ZeroLayer(MyModule):
     @staticmethod
     def is_zero_layer():
         return True
+
+
+class SEModule(nn.Module):
+
+    def __init__(self, channel, reduction=0.25):
+        super(SEModule, self).__init__()
+
+        self.channel = channel
+        self.reduction = reduction
+
+        num_mid = make_divisible(int(self.channel * self.reduction), divisor=8)
+
+        self.fc = nn.Sequential(OrderedDict([
+            ('reduce', nn.Conv2d(self.channel, num_mid, 1, 1, 0, bias=True)),
+            ('relu', nn.ReLU(inplace=True)),
+            ('expand', nn.Conv2d(num_mid, self.channel, 1, 1, 0, bias=True)),
+            ('h_sigmoid', Hsigmoid(inplace=True)),
+        ]))
+
+    def forward(self, x):
+        y = x.mean(3, keepdim=True).mean(2, keepdim=True)
+        y = self.fc(y)
+        return x * y
 
 
 class MBInvertedConvLayer(MyModule):

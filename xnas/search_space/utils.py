@@ -101,29 +101,6 @@ def copy_bn(target_bn, src_bn):
     target_bn.running_var.data.copy_(src_bn.running_var.data[:feature_dim])
 
 
-class SEModule(nn.Module):
-
-    def __init__(self, channel, reduction=0.25):
-        super(SEModule, self).__init__()
-
-        self.channel = channel
-        self.reduction = reduction
-
-        num_mid = make_divisible(int(self.channel * self.reduction), divisor=8)
-
-        self.fc = nn.Sequential(OrderedDict([
-            ('reduce', nn.Conv2d(self.channel, num_mid, 1, 1, 0, bias=True)),
-            ('relu', nn.ReLU(inplace=True)),
-            ('expand', nn.Conv2d(num_mid, self.channel, 1, 1, 0, bias=True)),
-            ('h_sigmoid', Hsigmoid(inplace=True)),
-        ]))
-
-    def forward(self, x):
-        y = x.mean(3, keepdim=True).mean(2, keepdim=True)
-        y = self.fc(y)
-        return x * y
-
-
 def count_convNd(m, _, y):
     cin = m.in_channels
 
