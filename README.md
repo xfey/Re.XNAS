@@ -25,3 +25,17 @@ python tools/train_darts.py --cfg configs/search/darts.yaml
 # replace config example
 python tools/train_darts.py --cfg configs/search/darts.yaml OUT_DIR /username/project/XNAS/experiment/darts/test1
 ```
+
+## timeline
+
+- [x] core
+- [x] datasets/utils
+- [x] datasets: cifar10 & imagenet (with test case)
+- [x] search_space/mb (inherit)
+- [x] search_space/cellbased (with test case)
+- [x] DARTS
+- [x] PDARTS, PCDARTS
+- [] core: trainer & builder
+- [] tool: train_DARTS/PDARTS/PCDARTS
+- [] search_algorithm: SNG and more
+- [] tool: train_SNG
