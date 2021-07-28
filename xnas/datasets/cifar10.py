@@ -26,7 +26,7 @@ _SD = [63.0, 62.1, 66.7]
 
 def XNAS_Cifar10(data_path, split, backend='custom', batch_size=256, num_workers=4):
     """
-        Xnas cifar10, generate dataloader from cifar10 train according split and beckend
+        XNAS cifar10, generate dataloader from cifar10 train according split and beckend
         not support distributed now
     """
     if backend == 'custom':

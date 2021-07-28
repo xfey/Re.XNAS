@@ -17,12 +17,59 @@ cfg = _C
 # Example usage:
 #   from core.config import cfg
 
-# ------------------------------------------------------------------------------------ #
-# Train options
-# ------------------------------------------------------------------------------------ #
-_C.TRAIN = CfgNode()
+# # ------------------------------------------------------------------------------------ #
+# # Train options
+# # ------------------------------------------------------------------------------------ #
+# _C.TRAIN = CfgNode()
 
-_C.TRAIN.IM_SIZE = 32
+# _C.TRAIN.IM_SIZE = 32
+
+# _C.TRAIN.BATCH_SIZE = 128
+
+# _C.TRAIN.LOSS_FUN = 'cross_entropy'
+
+
+# ------------------------------------------------------------------------------------ #
+# Test options
+# ------------------------------------------------------------------------------------ #
+_C.TEST = CfgNode()
+
+_C.TEST.BATCH_SIZE = 128
+
+_C.TEST.WEIGHTS = ""
+
+# ------------------------------------------------------------------------------------ #
+# Searching options
+# ------------------------------------------------------------------------------------ #
+_C.SEARCH = CfgNode()
+
+# Dataset and split
+_C.SEARCH.DATASET = "cifar10"
+_C.SEARCH.SPLIT = [0.8, 0.2]
+
+# Total mini-batch size
+_C.SEARCH.BATCH_SIZE = 256
+
+# Image size
+_C.SEARCH.IM_SIZE = 32
+
+# Loss function
+_C.SEARCH.LOSS_FUN = 'cross_entropy'
+
+# Evaluate model on test data every eval period epochs
+_C.SEARCH.EVAL_PERIOD = 1
+
+# Save model checkpoint every checkpoint period epochs
+_C.SEARCH.CHECKPOINT_PERIOD = 1
+
+# Resume training from the latest checkpoint in the output directory
+_C.SEARCH.AUTO_RESUME = True
+
+# Weights to start training from
+_C.SEARCH.WEIGHTS = ""
+
+# using FP16
+_C.SEARCH.AMP = False
 
 
 # ------------------------------------------------------------------------------------ #
@@ -218,37 +265,6 @@ _C.DATA_LOADER.MEMORY_DATA = False
 # data augmentation
 _C.DATA_LOADER.PCA_JITTER = False
 _C.DATA_LOADER.COLOR_JITTER = False
-
-
-# ------------------------------------------------------------------------------------ #
-# Searching options
-# ------------------------------------------------------------------------------------ #
-_C.SEARCH = CfgNode()
-
-# Dataset and split
-_C.SEARCH.DATASET = "cifar10"
-_C.SEARCH.SPLIT = [0.8, 0.2]
-
-# Total mini-batch size
-_C.SEARCH.BATCH_SIZE = 256
-
-# Image size
-_C.SEARCH.IM_SIZE = 32
-
-# Evaluate model on test data every eval period epochs
-_C.SEARCH.EVAL_PERIOD = 1
-
-# Save model checkpoint every checkpoint period epochs
-_C.SEARCH.CHECKPOINT_PERIOD = 1
-
-# Resume training from the latest checkpoint in the output directory
-_C.SEARCH.AUTO_RESUME = True
-
-# Weights to start training from
-_C.SEARCH.WEIGHTS = ""
-
-# using FP16
-_C.SEARCH.AMP = False
 
 
 # ------------------------------------------------------------------------------------ #

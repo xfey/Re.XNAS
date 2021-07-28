@@ -35,7 +35,10 @@ python tools/train_darts.py --cfg configs/search/darts.yaml OUT_DIR /username/pr
 - [x] search_space/cellbased (with test case)
 - [x] DARTS
 - [x] PDARTS, PCDARTS
-- [ ] core: trainer & builder
-- [ ] tool: train_DARTS/PDARTS/PCDARTS
+- [x] core: trainer & builder
+    - [x] merge config space
+    - [ ] test the mergence
+- [ ] tool: train_DARTS
+- [ ] tool: train for PDARTS/PCDARTS
 - [ ] search_algorithm: SNG and more (add to builder)
 - [ ] tool: train_SNG

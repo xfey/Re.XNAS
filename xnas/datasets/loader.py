@@ -10,6 +10,7 @@ import os
 from xnas.core.config import cfg
 from xnas.datasets.cifar10 import XNAS_Cifar10
 from xnas.datasets.imagenet import XNAS_ImageFolder
+from torch.utils.data.sampler import RandomSampler
 from torch.utils.data.distributed import DistributedSampler
 
 
@@ -17,7 +18,7 @@ from torch.utils.data.distributed import DistributedSampler
 _DATASETS = {"cifar10": XNAS_Cifar10, "imagenet": XNAS_ImageFolder}
 
 
-def _construct_loader(dataset_name, split_list, batch_size):
+def construct_loader(dataset_name, split_list, batch_size):
     # Default data directory (/path/pycls/pycls/datasets/data)
     if cfg.DATA_LOADER.MEMORY_DATA:
         _DATA_DIR = "/userhome/temp_data"
@@ -39,6 +40,9 @@ def _construct_loader(dataset_name, split_list, batch_size):
 
 
 def shuffle(loader, cur_epoch):
+    err_str = "Sampler type '{}' not supported".format(type(loader.sampler))
+    assert isinstance(loader.sampler, (RandomSampler, DistributedSampler)), err_str
+    # RandomSampler handles shuffling automatically
     if isinstance(loader.sampler, DistributedSampler):
         # DistributedSampler shuffles data based on epoch
         loader.sampler.set_epoch(cur_epoch)

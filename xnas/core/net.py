@@ -98,7 +98,9 @@ def complexity_maxpool2d(cx, k, stride, padding):
 
 def complexity(model):
     """Compute model complexity (model can be model instance or model class)."""
-    size = cfg.TRAIN.IM_SIZE
+    # NOTE: using cfg.SEARCH space instead
+    # size = cfg.TRAIN.IM_SIZE
+    size = cfg.SEARCH.IM_SIZE
     cx = {"h": size, "w": size, "flops": 0, "params": 0, "acts": 0}
     cx = model.complexity(cx)
     return {"flops": cx["flops"], "params": cx["params"], "acts": cx["acts"]}
