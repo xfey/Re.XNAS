@@ -212,8 +212,8 @@ def build_super_net():
     from xnas.core.config import cfg
     basic_op = None if len(cfg.MB.BASIC_OP) == 0 else cfg.MB.BASIC_OP
     stride_stages = None if len(cfg.MB.STRIDE_STAGES) == 0 else cfg.MB.STRIDE_STAGES
-    act_stages = None if len(cfg.MB.ACT_STAGES) == 0 else act_stages
-    se_stages = None if len(cfg.MB.SE_STAGES) == 0 else se_stages
+    act_stages = None if len(cfg.MB.ACT_STAGES) == 0 else cfg.MB.ACT_STAGES
+    se_stages = None if len(cfg.MB.SE_STAGES) == 0 else cfg.MB.SE_STAGES
     super_net = get_super_net(cfg.SPACE.NUM_CLASSES, cfg.SPACE.NAME, cfg.MB.WIDTH_MULTI,
                               basic_op, cfg.MB.DEPTH, stride_stages, act_stages, se_stages)
     super_net.all_edges = len(super_net.blocks) - 1
