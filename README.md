@@ -26,7 +26,7 @@ python tools/train_darts.py --cfg configs/search/darts.yaml
 python tools/train_darts.py --cfg configs/search/darts.yaml OUT_DIR /username/project/XNAS/experiment/darts/test1
 ```
 
-## timeline
+## Timeline
 
 - [x] core
 - [x] datasets/utils
