@@ -117,7 +117,7 @@ class NASBench201CNN(nn.Module):
 
 # build API
 
-def _NASbench201():
+def _NASBench201():
     from xnas.core.config import cfg
     return NASBench201CNN(C=cfg.SPACE.CHANNEL,
                           N=cfg.SPACE.LAYERS,
