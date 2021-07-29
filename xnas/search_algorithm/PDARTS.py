@@ -12,7 +12,7 @@ Pdarts is a search space specific method, which need to change the search space 
 """
 
 
-class PdartsCNNController(nn.Module):
+class PDartsCNNController(nn.Module):
     """ SearchCNN controller supporting multi-gpu """
 
     def __init__(self, net, criterion, device_ids=None):

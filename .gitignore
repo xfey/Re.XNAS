@@ -1,5 +1,6 @@
 # Byte-compiled / optimized / DLL files
 experiment/
+cifar10/
 __pycache__/
 tmp/
 .idea/

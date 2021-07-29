@@ -61,7 +61,7 @@ def pdarts_train_model():
         # TODO: fix the complexity function
         # search_space = setup_model()
         # Init controller and architect
-        pdarts_controller = PdartsCNNController(search_space, loss_fun)
+        pdarts_controller = PDartsCNNController(search_space, loss_fun)
         pdarts_controller.cuda()
         architect = Architect(
             pdarts_controller, cfg.OPTIM.MOMENTUM, cfg.OPTIM.WEIGHT_DECAY)
