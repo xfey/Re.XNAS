@@ -31,8 +31,9 @@ logger = logging.get_logger(__name__)
 def darts_train_model():
     setup_env()
     # Loading search space
-    # search_space = build_space()
-    search_space = setup_model()
+    search_space = build_space()
+    # TODO: fix the complexity function
+    # search_space = setup_model()
     # Init controller and architect
     loss_fun = build_loss_fun().cuda()
     darts_controller = DartsCNNController(search_space, loss_fun)
@@ -210,3 +211,7 @@ def darts_load_checkpoint(checkpoint_file, model, w_optim=None, a_optim=None):
     if a_optim:
         a_optim.load_state_dict(checkpoint_["a_optim_state"])
     return checkpoint_["epoch"]
+
+if __name__ == "__main__":
+    darts_train_model()
+    writer.close()
