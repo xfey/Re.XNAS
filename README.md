@@ -40,4 +40,5 @@ python tools/train_darts.py --cfg configs/search/darts.yaml OUT_DIR /username/pr
 - [x] tool: train_DARTS
 - [x] tool: train for PDARTS/PCDARTS
 - [ ] search_algorithm: SNG and more (add to builder)
-- [ ] tool: train_SNG
+- [ ] test: SNG_optimizer, SNG_1shot1
+- [ ] tool: SNG_search
