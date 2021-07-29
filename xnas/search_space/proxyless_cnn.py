@@ -184,3 +184,5 @@ class ProxylessNASNets(MyNetwork):
                 'block_flops': block_flops,
                 'feature_mix_layer_flops': feature_mix_layer_flops,
                 'classifier_flops': classifier_flops}
+
+# NOTE: function get_super_net() and build_super_net() written in file mv_v3_cnn.py
