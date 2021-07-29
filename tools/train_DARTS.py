@@ -1,6 +1,5 @@
 import gc
 import os
-import time
 
 from torch.utils.tensorboard import SummaryWriter
 
@@ -29,6 +28,7 @@ logger = logging.get_logger(__name__)
 
 
 def darts_train_model():
+    """train DARTS model"""
     setup_env()
     # Loading search space
     search_space = build_space()
