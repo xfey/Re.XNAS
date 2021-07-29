@@ -31,11 +31,15 @@ cfg = _C
 
 # ------------------------------------------------------------------------------------ #
 # Test options
+# using in trainer.py and only for metering,
+# may modify and extend more usage in the future.
 # ------------------------------------------------------------------------------------ #
 _C.TEST = CfgNode()
 
+# Test batch_size
 _C.TEST.BATCH_SIZE = 128
 
+# Test weight file location
 _C.TEST.WEIGHTS = ""
 
 # ------------------------------------------------------------------------------------ #
@@ -43,8 +47,10 @@ _C.TEST.WEIGHTS = ""
 # ------------------------------------------------------------------------------------ #
 _C.SEARCH = CfgNode()
 
-# Dataset and split
+# Dataset
 _C.SEARCH.DATASET = "cifar10"
+
+# Split
 _C.SEARCH.SPLIT = [0.8, 0.2]
 
 # Total mini-batch size
