@@ -9,6 +9,12 @@ import torch
 
 from xnas.core.config import cfg
 
+from xnas.search_algorithm.SNG import SNG, Dynamic_SNG
+from xnas.search_algorithm.ASNG import ASNG, Dynamic_ASNG
+from xnas.search_algorithm.DDPNAS import CategoricalDDPNAS
+from xnas.search_algorithm.MDENAS import CategoricalMDENAS
+from xnas.search_algorithm.MIGO import MIGO
+
 from xnas.search_space.cellbased_DARTS_cnn import _DartsCNN
 from xnas.search_space.cellbased_PDARTS_cnn import _PdartsCNN
 from xnas.search_space.cellbased_PCDARTS_cnn import _PcdartsCNN
@@ -75,8 +81,26 @@ def register_loss_fun(name, ctor):
 
 
 def sng_builder(category):
-    # TODO: finish SNG search
-    raise NotImplementedError
+    if cfg.SNG.NAME == 'SNG':
+        return SNG(category, lam=cfg.SNG.LAMBDA)
+    elif cfg.SNG.NAME == 'ASNG':
+        return ASNG(category, lam=cfg.SNG.LAMBDA)
+    elif cfg.SNG.NAME == 'dynamic_SNG':
+        return Dynamic_SNG(category, step=cfg.SNG.PRUNING_STEP, pruning=cfg.SNG.PRUNING)
+    elif cfg.SNG.NAME == 'dynamic_ASNG':
+        return Dynamic_ASNG(category, step=cfg.SNG.PRUNING_STEP, pruning=cfg.SNG.PRUNING)
+    elif cfg.SNG.NAME == 'MDENAS':
+        return CategoricalMDENAS(category, cfg.SNG.THETA_LR)
+    elif cfg.SNG.NAME == 'DDPNAS':
+        return CategoricalDDPNAS(category, cfg.SNG.PRUNING_STEP)
+    elif cfg.SNG.NAME == 'MIGO':
+        return MIGO(categories=category,
+                    step=cfg.SNG.PRUNING_STEP, lam=cfg.SNG.LAMBDA,
+                    pruning=cfg.SNG.PRUNING, sample_with_prob=cfg.SNG.PROB_SAMPLING,
+                    utility_function=cfg.SNG.UTILITY, utility_function_hyper=cfg.SNG.UTILITY_FACTOR,
+                    momentum=cfg.SNG.MOMENTUM, gamma=cfg.SNG.GAMMA, sampling_number_per_edge=cfg.SNG.SAMPLING_PER_EDGE)
+    else:
+        raise NotImplementedError
 
 
 def lr_scheduler_builder(w_optim):
