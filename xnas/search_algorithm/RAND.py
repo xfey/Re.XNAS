@@ -28,7 +28,7 @@ class RAND:
     def record_information(self, sample, objective):
         self.sample_list.append(sample)
         self.obj_list.append(objective*self.max_mize)
-    
+
     def sampling(self):
         """
         Draw a sample from the categorical distribution (one-hot)
@@ -42,7 +42,7 @@ class RAND:
 
     def sampling_index(self):
         return one_hot_to_index(np.array(self.sampling()))
-    
+
     def mle(self):
         """
         Get most likely categorical variables (one-hot)
@@ -52,7 +52,7 @@ class RAND:
         for i, c in enumerate(m):
             x[i, c] = 1
         return x
-    
+
     def update(self):
         objective = np.array(self.obj_list[-1])
         sample = np.array(self.sample_list[-1])
