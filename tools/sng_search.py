@@ -4,7 +4,6 @@ import random
 import os
 import json
 import gc
-import time
 
 import torch
 import torch.nn as nn
@@ -16,8 +15,8 @@ import xnas.core.config as config
 import xnas.core.checkpoint as checkpoint
 import xnas.core.distributed as dist
 from xnas.datasets.loader import _construct_loader
-from xnas.core.utils import index_to_one_hot, one_hot_to_index
-from xnas.core.trainer import setup_env, EvaluateNasbench, test_epoch
+from xnas.core.utils import index_to_one_hot, one_hot_to_index, EvaluateNasbench
+from xnas.core.trainer import setup_env, test_epoch
 from xnas.core.timer import Timer
 from xnas.core.config import cfg
 from xnas.core.builders import build_space, build_loss_fun, lr_scheduler_builder, sng_builder
@@ -302,4 +301,4 @@ def test_epoch_with_sample(test_loader, model, test_meter, cur_epoch, sample, te
 
 
 if __name__ == "__main__":
-    main()
+    train_model()
