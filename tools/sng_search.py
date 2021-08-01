@@ -14,9 +14,9 @@ import xnas.core.logging as logging
 import xnas.core.config as config
 import xnas.core.checkpoint as checkpoint
 import xnas.core.distributed as dist
-from xnas.datasets.loader import _construct_loader
+from xnas.datasets.loader import construct_loader
 from xnas.core.utils import index_to_one_hot, one_hot_to_index, EvaluateNasbench
-from xnas.core.trainer import setup_env, test_epoch
+from xnas.core.trainer import setup_env
 from xnas.core.timer import Timer
 from xnas.core.config import cfg
 from xnas.core.builders import build_space, build_loss_fun, lr_scheduler_builder, sng_builder
@@ -61,6 +61,8 @@ def random_sampling(search_space, distribution_optimizer, epoch=-1000, _random=F
                 _error = False
                 if cfg.SNG.PROB_SAMPLING:
                     sample = np.array([np.random.choice(num_ops, 1, p=distribution_optimizer.p_model.theta[i, :])[0] for i in range(total_edges)])
+                else:
+                    sample = np.array([np.random.choice(num_ops, 1)[0] for i in range(total_edges)])
                 _num = 0
                 for i in sample[0:search_space.num_edges]:
                     if i in non_edge_idx:
@@ -80,7 +82,7 @@ def random_sampling(search_space, distribution_optimizer, epoch=-1000, _random=F
         if cfg.SNG.EDGE_SAMPLING and epoch > cfg.SNG.EDGE_SAMPLING_EPOCH:
             for i in non_edge_idx:
                 sample[i] = 7
-        sample = index_to_one_hot(sample, distribution_optimizer.p_nmodel.Cmax)
+        sample = index_to_one_hot(sample, distribution_optimizer.p_model.Cmax)
         # in the pruning method we have to sampling anyway
         distribution_optimizer.sampling()
         return sample
@@ -96,7 +98,7 @@ def train_model():
     search_space.cuda()
     loss_fun = build_loss_fun().cuda()
     # Load dataset
-    [train_, val_] = _construct_loader(
+    [train_, val_] = construct_loader(
         cfg.SEARCH.DATASET, cfg.SEARCH.SPLIT, cfg.SEARCH.BATCH_SIZE)
     # Weights optimizer
     w_optim = torch.optim.SGD(search_space.parameters(),
@@ -129,7 +131,7 @@ def train_model():
             sample = random_sampling(search_space, distribution_optimizer, epoch=cur_epoch)
             logger.info("Sampling: {}".format(one_hot_to_index(sample)))
             train_epoch(train_, val_, search_space, w_optim, lr, _over_all_epoch, sample, loss_fun, warm_train_meter)
-            top1 = test_epoch(val_, search_space, warm_val_meter, _over_all_epoch, sample, writer)
+            top1 = test_epoch_with_sample(val_, search_space, warm_val_meter, _over_all_epoch, sample, writer)
             _over_all_epoch += 1
         else:
             num_ops, total_edges = search_space.num_ops, search_space.all_edges
@@ -139,7 +141,7 @@ def train_model():
                 sample = np.transpose(array_sample[:, i])
                 sample = index_to_one_hot(sample, distribution_optimizer.p_model.Cmax)
                 train_epoch(train_, val_, search_space, w_optim, lr, _over_all_epoch, sample, loss_fun, warm_train_meter)
-                top1 = test_epoch(val_, search_space, warm_val_meter, _over_all_epoch, sample, writer)
+                top1 = test_epoch_with_sample(val_, search_space, warm_val_meter, _over_all_epoch, sample, writer)
                 _over_all_epoch += 1
     all_timer.toc()
     logger.info("end warm up training")
@@ -158,7 +160,7 @@ def train_model():
         sample = random_sampling(search_space, distribution_optimizer, epoch=cur_epoch, _random=cfg.SNG.RANDOM_SAMPLE)
         logger.info("Sampling: {}".format(one_hot_to_index(sample)))
         train_epoch(train_, val_, search_space, w_optim, lr, _over_all_epoch, sample, loss_fun, train_meter)
-        top1 = test_epoch(val_, search_space, val_meter, _over_all_epoch, sample, writer)
+        top1 = test_epoch_with_sample(val_, search_space, val_meter, _over_all_epoch, sample, writer)
         _over_all_epoch += 1
 
         lr_scheduler.step()
@@ -193,7 +195,7 @@ def train_model():
             sample = distribution_optimizer.sampling_best()
         _over_all_epoch += 1
         train_epoch(train_, val_, search_space, w_optim, lr, _over_all_epoch, sample, loss_fun, train_meter)
-        test_epoch(val_, search_space, val_meter, _over_all_epoch, sample, writer)
+        test_epoch_with_sample(val_, search_space, val_meter, _over_all_epoch, sample, writer)
     logger.info("Overall training time : {} hours".format(str((all_timer.total_time)/3600.)))
 
     # whether to evaluate through nasbench ;

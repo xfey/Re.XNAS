@@ -13,7 +13,7 @@ from torch.autograd import Variable
 import torch.nn as nn
 import torch
 
-from xnas.core.utils import index_to_one_hot, one_hot_to_index
+# from xnas.core.utils import index_to_one_hot, one_hot_to_index
 from xnas.search_space.cellbased_layers import ConvBnRelu, Conv3x3BnRelu, Conv1x1BnRelu, ReLUConvBN, FactorizedReduce
 
 
