@@ -126,6 +126,13 @@ def train_model():
     warm_val_meter = meters.TestMeter(len(val_))
     all_timer.tic()
     for cur_epoch in range(cfg.OPTIM.WARMUP_EPOCHS):
+        
+        # Save a checkpoint
+        if (_over_all_epoch + 1) % cfg.SEARCH.CHECKPOINT_PERIOD == 0:
+            checkpoint_file = checkpoint.save_checkpoint(
+                search_space, w_optim, _over_all_epoch)
+            logger.info("Wrote checkpoint to: {}".format(checkpoint_file))
+        
         lr = lr_scheduler.get_last_lr()[0]
         if cfg.SNG.WARMUP_RANDOM_SAMPLE:
             sample = random_sampling(search_space, distribution_optimizer, epoch=cur_epoch)
@@ -152,6 +159,13 @@ def train_model():
     val_meter = meters.TestMeter(len(val_))
     all_timer.tic()
     for cur_epoch in range(cfg.OPTIM.MAX_EPOCH):
+        
+        # Save a checkpoint
+        if (_over_all_epoch + 1) % cfg.SEARCH.CHECKPOINT_PERIOD == 0:
+            checkpoint_file = checkpoint.save_checkpoint(
+                search_space, w_optim, _over_all_epoch)
+            logger.info("Wrote checkpoint to: {}".format(checkpoint_file))
+        
         if hasattr(distribution_optimizer, 'training_finish'):
             if distribution_optimizer.training_finish:
                 break
@@ -188,6 +202,13 @@ def train_model():
     lr = w_optim.param_groups[0]['lr']
     all_timer.tic()
     for cur_epoch in range(cfg.OPTIM.FINAL_EPOCH):
+        
+        # Save a checkpoint
+        if (_over_all_epoch + 1) % cfg.SEARCH.CHECKPOINT_PERIOD == 0:
+            checkpoint_file = checkpoint.save_checkpoint(
+                search_space, w_optim, _over_all_epoch)
+            logger.info("Wrote checkpoint to: {}".format(checkpoint_file))
+        
         if cfg.SPACE.NAME == 'darts':
             genotype = search_space.genotype(distribution_optimizer.p_model.theta)
             sample = search_space.genotype_to_onehot_sample(genotype)
