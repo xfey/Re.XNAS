@@ -77,6 +77,9 @@ _C.SEARCH.WEIGHTS = ""
 # using FP16
 _C.SEARCH.AMP = False
 
+# data path using in indepandent train
+_C.SEARCH.DATAPATH = "/gdata/cifar10/"
+
 
 # ------------------------------------------------------------------------------------ #
 # Search Space options

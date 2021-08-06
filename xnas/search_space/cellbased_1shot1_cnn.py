@@ -72,7 +72,7 @@ class Network(nn.Module):
             cell = Cell(steps=self._steps, C_prev=C_prev, C=C_curr, layer=i, search_space=search_space)
             self.cells += [cell]
             C_prev = C_curr
-        self.postprocess = ReLUConvBN(C_in=C_prev * self._steps, C_out=C_curr, kernel_size=1, stride=1, padding=0,
+        self.postprocess = StdConv(C_in=C_prev * self._steps, C_out=C_curr, kernel_size=1, stride=1, padding=0,
                                       affine=False)
 
         self.classifier = nn.Linear(C_prev, num_classes)

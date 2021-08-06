@@ -14,7 +14,7 @@ from xnas.core.config import cfg
 from xnas.core.trainer import setup_env, setup_model, test_epoch
 from xnas.datasets.loader import construct_loader
 from xnas.search_algorithm.PDARTS import *
-from train_DARTS import darts_load_checkpoint, darts_save_checkpoint
+from DARTS_search import darts_load_checkpoint, darts_save_checkpoint
 
 
 # Load config and check
