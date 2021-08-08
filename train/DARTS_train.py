@@ -69,6 +69,7 @@ def main():
     
     # TODO: Parallel
     # model = nn.DataParallel(model, device_ids=cfg.NUM_GPUS).to(device)
+    model.cuda()
 
     # weights optimizer
     optimizer = torch.optim.SGD(model.parameters(), cfg.OPTIM.BASE_LR, momentum=cfg.OPTIM.MOMENTUM,
