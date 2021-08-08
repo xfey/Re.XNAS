@@ -251,7 +251,7 @@ class AugmentCNN(nn.Module):
         self.C = C
         self.n_classes = n_classes
         self.n_layers = n_layers
-        self.genotype = genotype
+        self.genotype = gt.from_str(genotype)
         # aux head position
         self.aux_pos = 2*n_layers//3 if auxiliary else -1
 
@@ -272,7 +272,7 @@ class AugmentCNN(nn.Module):
             else:
                 reduction = False
 
-            cell = AugmentCell(genotype, C_pp, C_p, C_cur, reduction_p, reduction)
+            cell = AugmentCell(self.genotype, C_pp, C_p, C_cur, reduction_p, reduction)
             reduction_p = reduction
             self.cells.append(cell)
             C_cur_out = C_cur * len(cell.concat)

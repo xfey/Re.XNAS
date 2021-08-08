@@ -17,17 +17,22 @@ cfg = _C
 # Example usage:
 #   from core.config import cfg
 
-# # ------------------------------------------------------------------------------------ #
-# # Train options
-# # ------------------------------------------------------------------------------------ #
-# _C.TRAIN = CfgNode()
+# ------------------------------------------------------------------------------------ #
+# Train options
+# ------------------------------------------------------------------------------------ #
+_C.TRAIN = CfgNode()
 
-# _C.TRAIN.IM_SIZE = 32
+_C.TRAIN.DROP_PATH_PROB = 0.2
 
-# _C.TRAIN.BATCH_SIZE = 128
+_C.TRAIN.LAYERS = 20
 
-# _C.TRAIN.LOSS_FUN = 'cross_entropy'
+_C.TRAIN.INIT_CHANNELS = 36
 
+_C.TRAIN.AUX_WEIGHT = 0.4
+
+_C.TRAIN.CUTOUT_LENGTH = 16
+
+_C.TRAIN.GENOTYPE = ""
 
 # ------------------------------------------------------------------------------------ #
 # Test options

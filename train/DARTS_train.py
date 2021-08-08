@@ -31,12 +31,11 @@ writer = SummaryWriter(log_dir=os.path.join(cfg.OUT_DIR, "tb"))
 
 logger = logging.get_logger(__name__)
 
+# Load config and check
+config.load_cfg_fom_args()
+config.assert_and_infer_cfg()
+cfg.freeze()
 
-CUTOUT_LENGTH = 16
-AUX_WEIGHT = 0.4
-INIT_CHANNELS = 36
-LAYERS = 20
-DROP_PATH_PROB = 0.2
 
 """
 --genotype "Genotype(
@@ -60,15 +59,16 @@ def main():
     setup_env()
 
     input_size, input_channels, n_classes, train_data, valid_data = get_data(
-        cfg.SEARCH.DATASET, cfg.SEARCH.DATAPATH, CUTOUT_LENGTH, validation=True)
+        cfg.SEARCH.DATASET, cfg.SEARCH.DATAPATH, cfg.TRAIN.CUTOUT_LENGTH, validation=True)
 
     loss_fun = build_loss_fun().cuda()
-    use_aux = AUX_WEIGHT > 0.
+    use_aux = cfg.TRAIN.AUX_WEIGHT > 0.
 
-    model = AugmentCNN(input_size, input_channels, INIT_CHANNELS, n_classes, LAYERS,
-                       use_aux, _genotype)
+    model = AugmentCNN(input_size, input_channels, cfg.TRAIN.INIT_CHANNELS, n_classes, cfg.TRAIN.LAYERS,
+                       use_aux, cfg.TRAIN.GENOTYPE)
     
-    # model = nn.DataParallel(model, device_ids=config.gpus).to(device)
+    # TODO: Parallel
+    # model = nn.DataParallel(model, device_ids=cfg.NUM_GPUS).to(device)
 
     # weights optimizer
     optimizer = torch.optim.SGD(model.parameters(), cfg.OPTIM.BASE_LR, momentum=cfg.OPTIM.MOMENTUM,
@@ -96,12 +96,17 @@ def main():
 
     start_epoch = 0
     for cur_epoch in range(start_epoch, cfg.OPTIM.MAX_EPOCH):
-        lr_scheduler.step()
-        drop_prob = DROP_PATH_PROB * cur_epoch / cfg.OPTIM.MAX_EPOCH
-        model.module.drop_path_prob(drop_prob)
+        
+        drop_prob = cfg.TRAIN.DROP_PATH_PROB * cur_epoch / cfg.OPTIM.MAX_EPOCH
+        if cfg.NUM_GPUS > 1:
+            model.module.drop_path_prob(drop_prob)
+        else:
+            model.drop_path_prob(drop_prob)
     
         # Training 
         train_epoch(train_loader, model, optimizer, loss_fun, cur_epoch, train_meter)
+
+        lr_scheduler.step()
 
         # Validation
         cur_step = (cur_epoch + 1) * len(train_loader)
@@ -113,7 +118,7 @@ def main():
             is_best = True
         else:
             is_best = False
-        save_checkpoint(model, arg_outdir, is_best)
+        save_checkpoint(model, cfg.OUT_DIR, is_best)
 
         print("")
 
@@ -148,8 +153,8 @@ def train_epoch(train_loader, model, optimizer, criterion, cur_epoch, train_mete
         optimizer.zero_grad()
         logits, aux_logits = model(X)
         loss = criterion(logits, y)
-        if AUX_WEIGHT > 0.:
-            loss += AUX_WEIGHT * criterion(aux_logits, y)
+        if cfg.TRAIN.AUX_WEIGHT > 0.:
+            loss += cfg.TRAIN.AUX_WEIGHT * criterion(aux_logits, y)
         loss.backward()
 
         # gradient clipping
@@ -288,11 +293,9 @@ def save_checkpoint(state, ckpt_dir, is_best=False):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--genotype', required=False, help='Cell genotype')
-    parser.add_argument('--out_dir', default='experiment/DDPNAS/')
-    args = parser.parse_args()
-    arg_genotype = args.genotype
-    arg_outdir = args.out_dir
-    _genotype = gt.from_str(arg_genotype)
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument('--genotype', required=False, help='Cell genotype')
+    # args = parser.parse_args()
+    # arg_genotype = args.genotype
+    # _genotype = gt.from_str(arg_genotype)
     main()

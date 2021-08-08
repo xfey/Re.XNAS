@@ -31,7 +31,7 @@ def to_dag(C_in, gene, reduction):
         for op_name, s_idx in edges:
             # reduction cell & from input nodes => stride = 2
             stride = 2 if reduction and s_idx < 2 else 1
-            op = OPS_[op_name](C_in, stride, True)
+            op = OPS_[op_name](C_in, C_in, stride, True)
             if not isinstance(op, Identity): # Identity does not use drop path
                 op = nn.Sequential(
                     op,
