@@ -31,11 +31,6 @@ writer = SummaryWriter(log_dir=os.path.join(cfg.OUT_DIR, "tb"))
 
 logger = logging.get_logger(__name__)
 
-# Load config and check
-config.load_cfg_fom_args()
-config.assert_and_infer_cfg()
-cfg.freeze()
-
 
 CUTOUT_LENGTH = 16
 AUX_WEIGHT = 0.4
@@ -118,7 +113,7 @@ def main():
             is_best = True
         else:
             is_best = False
-        save_checkpoint(model, config.path, is_best)
+        save_checkpoint(model, arg_outdir, is_best)
 
         print("")
 
@@ -295,6 +290,9 @@ def save_checkpoint(state, ckpt_dir, is_best=False):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--genotype', required=False, help='Cell genotype')
+    parser.add_argument('--out_dir', default='experiment/DDPNAS/')
     args = parser.parse_args()
     arg_genotype = args.genotype
+    arg_outdir = args.out_dir
     _genotype = gt.from_str(arg_genotype)
+    main()
