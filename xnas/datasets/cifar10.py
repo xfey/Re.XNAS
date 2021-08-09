@@ -23,6 +23,7 @@ logger = logging.get_logger(__name__)
 _MEAN = [125.3, 123.0, 113.9]
 _SD = [63.0, 62.1, 66.7]
 
+# TODO: DALI backend support
 
 def XNAS_Cifar10(data_path, split, backend='custom', batch_size=256, num_workers=4):
     """
