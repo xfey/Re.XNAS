@@ -11,7 +11,7 @@ import xnas.core.meters as meters
 from xnas.core.timer import Timer
 from xnas.core.builders import build_space, build_loss_fun, lr_scheduler_builder
 from xnas.core.config import cfg
-from xnas.core.trainer import setup_env, setup_model, test_epoch
+from xnas.core.trainer import setup_env, test_epoch
 from xnas.datasets.loader import construct_loader
 from xnas.search_algorithm.DARTS import *
 

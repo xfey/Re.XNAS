@@ -39,10 +39,10 @@ def construct_loader(dataset_name, split_list, batch_size):
     return loader
 
 
-def shuffle(loader, cur_epoch):
-    err_str = "Sampler type '{}' not supported".format(type(loader.sampler))
-    assert isinstance(loader.sampler, (RandomSampler, DistributedSampler)), err_str
-    # RandomSampler handles shuffling automatically
-    if isinstance(loader.sampler, DistributedSampler):
-        # DistributedSampler shuffles data based on epoch
-        loader.sampler.set_epoch(cur_epoch)
+# def shuffle(loader, cur_epoch):
+#     err_str = "Sampler type '{}' not supported".format(type(loader.sampler))
+#     assert isinstance(loader.sampler, (RandomSampler, DistributedSampler)), err_str
+#     # RandomSampler handles shuffling automatically
+#     if isinstance(loader.sampler, DistributedSampler):
+#         # DistributedSampler shuffles data based on epoch
+#         loader.sampler.set_epoch(cur_epoch)

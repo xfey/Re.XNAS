@@ -21,7 +21,7 @@ import xnas.search_space.cellbased_basic_genotypes as gt
 
 from xnas.core.config import cfg
 from xnas.core.builders import build_loss_fun, lr_scheduler_builder
-from xnas.core.trainer import setup_env, setup_model, test_epoch
+from xnas.core.trainer import setup_env
 from xnas.search_space.cellbased_DARTS_cnn import AugmentCNN
 from xnas.datasets.loader import construct_loader
 
