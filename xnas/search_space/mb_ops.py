@@ -82,15 +82,6 @@ class MobileInvertedResidualBlock(MyNetwork):
         shortcut = set_layer_from_config(config['shortcut'])
         return MobileInvertedResidualBlock(mobile_inverted_conv, shortcut)
 
-    def get_flops(self, x):
-        flops1, conv_x = self.mobile_inverted_conv.get_flops(x)
-        if self.shortcut:
-            flops2, _ = self.shortcut.get_flops(x)
-        else:
-            flops2 = 0
-
-        return flops1 + flops2, self.forward(x)
-
 
 class MixedEdge(MyModule):
     MODE = None  # full, two, None, full_v2
@@ -175,11 +166,3 @@ class MixedEdge(MyModule):
     @staticmethod
     def build_from_config(config):
         raise ValueError('not needed')
-
-    def get_flops(self, x):
-        """ Only active paths taken into consideration when calculating FLOPs """
-        flops = 0
-        for i in self.active_index:
-            delta_flop, _ = self.candidate_ops[i].get_flops(x)
-            flops += delta_flop
-        return flops, self.forward(x)
