@@ -13,7 +13,6 @@ class MyModule(nn.Module):
         raise NotImplementedError
 
 
-
 class MyNetwork(MyModule):
 
     def forward(self, *x):
