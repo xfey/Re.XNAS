@@ -68,14 +68,6 @@ class MobileInvertedResidualBlock(MyNetwork):
             res = skip_x + conv_x
         return res
 
-    @property
-    def config(self):
-        return {
-            'name': MobileInvertedResidualBlock.__name__,
-            'mobile_inverted_conv': self.mobile_inverted_conv.config,
-            'shortcut': self.shortcut.config if self.shortcut is not None else None,
-        }
-
 
 class MixedEdge(MyModule):
     MODE = None  # full, two, None, full_v2
@@ -129,8 +121,6 @@ class MixedEdge(MyModule):
         self.inactive_index = [_i for _i in range(0, chosen_idx)] + \
                               [_i for _i in range(chosen_idx + 1, self.n_choices)]
 
-    """ """
-
     def forward(self, x):
         # output = 0
         # for i in self.active_index:
@@ -149,10 +139,3 @@ class MixedEdge(MyModule):
     @staticmethod
     def name():
         return 'MixedEdge'
-
-    @property
-    def config(self):
-        return {
-            'name': MixedEdge.__name__,
-            'selection': [i.config for i in self.candidate_ops],
-        }

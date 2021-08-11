@@ -121,20 +121,6 @@ class MobileNetV3(MyNetwork):
         x = self.classifier(x)
         return x
 
-    @property
-    def config(self):
-        return {
-            'name': MobileNetV3.__name__,
-            'bn': self.get_bn_param(),
-            'first_conv': self.first_conv.config,
-            'blocks': [
-                block.config for block in self.blocks
-            ],
-            'final_expand_layer': self.final_expand_layer.config,
-            'feature_mix_layer': self.feature_mix_layer.config,
-            'classifier': self.classifier.config,
-        }
-
     def flops_counter_per_layer(self, input_size=None):
         self.eval()
         if input_size is None:
@@ -208,11 +194,7 @@ def build_super_net():
     super_net.all_edges = len(super_net.blocks) - 1
     super_net.num_edges = len(super_net.blocks) - 1
     super_net.num_ops = len(super_net.conv_candidates) + 1
-    super_net_config_path = os.path.join(cfg.OUT_DIR, 'supernet.json')
-    super_net_config = super_net.config
     super_net.cuda()
-    logger.info("Saving search supernet to {}".format(super_net_config_path))
-    json.dump(super_net_config, open(super_net_config_path, 'a+'))
     flops_path = os.path.join(cfg.OUT_DIR, 'flops.json')
     flops_ = super_net.flops_counter_per_layer(input_size=[1, 3, cfg.SEARCH.IM_SIZE, cfg.SEARCH.IM_SIZE])
     logger.info("Saving flops to {}".format(flops_path))

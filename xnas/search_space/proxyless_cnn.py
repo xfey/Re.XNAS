@@ -120,19 +120,6 @@ class ProxylessNASNets(MyNetwork):
         x = self.classifier(x)
         return x
 
-    @property
-    def config(self):
-        return {
-            'name': ProxylessNASNets.__name__,
-            'bn': self.get_bn_param(),
-            'first_conv': self.first_conv.config,
-            'blocks': [
-                block.config for block in self.blocks
-            ],
-            'feature_mix_layer': None if self.feature_mix_layer is None else self.feature_mix_layer.config,
-            'classifier': self.classifier.config,
-        }
-
     def genotype(self, theta):
         genotype = []
         for i in range(theta.shape[0]):

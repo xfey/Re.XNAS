@@ -97,18 +97,6 @@ class My2DLayer(MyModule):
             x = module(x)
         return x
 
-    @property
-    def config(self):
-        return {
-            'in_channels': self.in_channels,
-            'out_channels': self.out_channels,
-            'use_bn': self.use_bn,
-            'act_func': self.act_func,
-            'dropout_rate': self.dropout_rate,
-            'ops_order': self.ops_order,
-        }
-
-
     @staticmethod
     def is_zero_layer():
         return False
@@ -146,19 +134,6 @@ class ConvLayer(My2DLayer):
             weight_dict['shuffle'] = ShuffleLayer(self.groups)
 
         return weight_dict
-
-    @property
-    def config(self):
-        return {
-            'name': ConvLayer.__name__,
-            'kernel_size': self.kernel_size,
-            'stride': self.stride,
-            'dilation': self.dilation,
-            'groups': self.groups,
-            'bias': self.bias,
-            'has_shuffle': self.has_shuffle,
-            **super(ConvLayer, self).config,
-        }
 
 
 class DepthConvLayer(My2DLayer):
@@ -198,19 +173,6 @@ class DepthConvLayer(My2DLayer):
             weight_dict['shuffle'] = ShuffleLayer(self.groups)
         return weight_dict
 
-    @property
-    def config(self):
-        return {
-            'name': DepthConvLayer.__name__,
-            'kernel_size': self.kernel_size,
-            'stride': self.stride,
-            'dilation': self.dilation,
-            'groups': self.groups,
-            'bias': self.bias,
-            'has_shuffle': self.has_shuffle,
-            **super(DepthConvLayer, self).config,
-        }
-
 
 class PoolingLayer(My2DLayer):
 
@@ -241,16 +203,6 @@ class PoolingLayer(My2DLayer):
             raise NotImplementedError
         return weight_dict
 
-    @property
-    def config(self):
-        return {
-            'name': PoolingLayer.__name__,
-            'pool_type': self.pool_type,
-            'kernel_size': self.kernel_size,
-            'stride': self.stride,
-            **super(PoolingLayer, self).config
-        }
-
 
 class IdentityLayer(My2DLayer):
 
@@ -260,13 +212,6 @@ class IdentityLayer(My2DLayer):
 
     def weight_op(self):
         return None
-
-    @property
-    def config(self):
-        return {
-            'name': IdentityLayer.__name__,
-            **super(IdentityLayer, self).config,
-        }
 
 
 class LinearLayer(MyModule):
@@ -334,19 +279,6 @@ class LinearLayer(MyModule):
             x = module(x)
         return x
 
-    @property
-    def config(self):
-        return {
-            'name': LinearLayer.__name__,
-            'in_features': self.in_features,
-            'out_features': self.out_features,
-            'bias': self.bias,
-            'use_bn': self.use_bn,
-            'act_func': self.act_func,
-            'dropout_rate': self.dropout_rate,
-            'ops_order': self.ops_order,
-        }
-
     @staticmethod
     def is_zero_layer():
         return False
@@ -360,13 +292,6 @@ class ZeroLayer(MyModule):
 
     def forward(self, x):
         return 0
-
-    @property
-    def config(self):
-        return {
-            'name': ZeroLayer.__name__,
-            'stride': self.stride,
-        }
 
     @staticmethod
     def is_zero_layer():
@@ -447,20 +372,6 @@ class MBInvertedConvLayer(MyModule):
         x = self.depth_conv(x)
         x = self.point_linear(x)
         return x
-
-    @property
-    def config(self):
-        return {
-            'name': MBInvertedConvLayer.__name__,
-            'in_channels': self.in_channels,
-            'out_channels': self.out_channels,
-            'kernel_size': self.kernel_size,
-            'stride': self.stride,
-            'expand_ratio': self.expand_ratio,
-            'mid_channels': self.mid_channels,
-            'act_func': self.act_func,
-            'use_se': self.use_se,
-        }
 
     @staticmethod
     def is_zero_layer():

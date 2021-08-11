@@ -8,18 +8,10 @@ class MyModule(nn.Module):
     def forward(self, *x):
         raise NotImplementedError
 
-    @property
-    def config(self):
-        raise NotImplementedError
-
 
 class MyNetwork(MyModule):
 
     def forward(self, *x):
-        raise NotImplementedError
-
-    @property
-    def config(self):
         raise NotImplementedError
 
     def set_bn_param(self, momentum, eps):
