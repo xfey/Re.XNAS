@@ -117,10 +117,6 @@ class My2DLayer(MyModule):
         return x
 
     @property
-    def module_str(self):
-        raise NotImplementedError
-
-    @property
     def config(self):
         return {
             'in_channels': self.in_channels,
@@ -172,25 +168,6 @@ class ConvLayer(My2DLayer):
             weight_dict['shuffle'] = ShuffleLayer(self.groups)
 
         return weight_dict
-
-    @property
-    def module_str(self):
-        if isinstance(self.kernel_size, int):
-            kernel_size = (self.kernel_size, self.kernel_size)
-        else:
-            kernel_size = self.kernel_size
-        if self.groups == 1:
-            if self.dilation > 1:
-                conv_str = '%dx%d_DilatedConv' % (kernel_size[0], kernel_size[1])
-            else:
-                conv_str = '%dx%d_Conv' % (kernel_size[0], kernel_size[1])
-        else:
-            if self.dilation > 1:
-                conv_str = '%dx%d_DilatedGroupConv' % (kernel_size[0], kernel_size[1])
-            else:
-                conv_str = '%dx%d_GroupConv' % (kernel_size[0], kernel_size[1])
-        conv_str += '_O%d' % self.out_channels
-        return conv_str
 
     @property
     def config(self):
@@ -248,19 +225,6 @@ class DepthConvLayer(My2DLayer):
         return weight_dict
 
     @property
-    def module_str(self):
-        if isinstance(self.kernel_size, int):
-            kernel_size = (self.kernel_size, self.kernel_size)
-        else:
-            kernel_size = self.kernel_size
-        if self.dilation > 1:
-            conv_str = '%dx%d_DilatedDepthConv' % (kernel_size[0], kernel_size[1])
-        else:
-            conv_str = '%dx%d_DepthConv' % (kernel_size[0], kernel_size[1])
-        conv_str += '_O%d' % self.out_channels
-        return conv_str
-
-    @property
     def config(self):
         return {
             'name': DepthConvLayer.__name__,
@@ -308,14 +272,6 @@ class PoolingLayer(My2DLayer):
         return weight_dict
 
     @property
-    def module_str(self):
-        if isinstance(self.kernel_size, int):
-            kernel_size = (self.kernel_size, self.kernel_size)
-        else:
-            kernel_size = self.kernel_size
-        return '%dx%d_%sPool' % (kernel_size[0], kernel_size[1], self.pool_type.upper())
-
-    @property
     def config(self):
         return {
             'name': PoolingLayer.__name__,
@@ -338,10 +294,6 @@ class IdentityLayer(My2DLayer):
 
     def weight_op(self):
         return None
-
-    @property
-    def module_str(self):
-        return 'Identity'
 
     @property
     def config(self):
@@ -421,10 +373,6 @@ class LinearLayer(MyModule):
         return x
 
     @property
-    def module_str(self):
-        return '%dx%d_Linear' % (self.in_features, self.out_features)
-
-    @property
     def config(self):
         return {
             'name': LinearLayer.__name__,
@@ -454,10 +402,6 @@ class ZeroLayer(MyModule):
 
     def forward(self, x):
         return 0
-
-    @property
-    def module_str(self):
-        return 'Zero'
 
     @property
     def config(self):
@@ -549,18 +493,6 @@ class MBInvertedConvLayer(MyModule):
         x = self.depth_conv(x)
         x = self.point_linear(x)
         return x
-
-    @property
-    def module_str(self):
-        if self.mid_channels is None:
-            expand_ratio = self.expand_ratio
-        else:
-            expand_ratio = self.mid_channels // self.in_channels
-        layer_str = '%dx%d_MBConv%d_%s' % (self.kernel_size, self.kernel_size, expand_ratio, self.act_func.upper())
-        if self.use_se:
-            layer_str = 'SE_' + layer_str
-        layer_str += '_O%d' % self.out_channels
-        return layer_str
 
     @property
     def config(self):

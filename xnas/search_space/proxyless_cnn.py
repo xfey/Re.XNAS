@@ -121,13 +121,6 @@ class ProxylessNASNets(MyNetwork):
         return x
 
     @property
-    def module_str(self):
-        _str = ''
-        for block in self.blocks:
-            _str += block.unit_str + '\n'
-        return _str
-
-    @property
     def config(self):
         return {
             'name': ProxylessNASNets.__name__,

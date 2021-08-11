@@ -9,10 +9,6 @@ class MyModule(nn.Module):
         raise NotImplementedError
 
     @property
-    def module_str(self):
-        raise NotImplementedError
-
-    @property
     def config(self):
         raise NotImplementedError
 
@@ -24,10 +20,6 @@ class MyModule(nn.Module):
 class MyNetwork(MyModule):
 
     def forward(self, *x):
-        raise NotImplementedError
-
-    @property
-    def module_str(self):
         raise NotImplementedError
 
     @property

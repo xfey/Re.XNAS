@@ -69,12 +69,6 @@ class MobileInvertedResidualBlock(MyNetwork):
         return res
 
     @property
-    def module_str(self):
-        return '(%s, %s)' % (
-            self.mobile_inverted_conv.module_str, self.shortcut.module_str if self.shortcut is not None else None
-        )
-
-    @property
     def config(self):
         return {
             'name': MobileInvertedResidualBlock.__name__,
@@ -166,11 +160,6 @@ class MixedEdge(MyModule):
             if 0 < value < 1:
                 _x += value * self.candidate_ops[i](x)
         return _x
-
-    @property
-    def module_str(self):
-        chosen_index, probs = self.chosen_index
-        return 'Mix(%s, %.3f)' % (self.candidate_ops[chosen_index].module_str, probs)
 
     @staticmethod
     def name():
