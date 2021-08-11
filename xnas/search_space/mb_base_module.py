@@ -12,9 +12,6 @@ class MyModule(nn.Module):
     def config(self):
         raise NotImplementedError
 
-    @staticmethod
-    def build_from_config(config):
-        raise NotImplementedError
 
 
 class MyNetwork(MyModule):
@@ -24,10 +21,6 @@ class MyNetwork(MyModule):
 
     @property
     def config(self):
-        raise NotImplementedError
-
-    @staticmethod
-    def build_from_config(config):
         raise NotImplementedError
 
     def set_bn_param(self, momentum, eps):

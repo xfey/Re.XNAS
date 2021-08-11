@@ -76,12 +76,6 @@ class MobileInvertedResidualBlock(MyNetwork):
             'shortcut': self.shortcut.config if self.shortcut is not None else None,
         }
 
-    @staticmethod
-    def build_from_config(config):
-        mobile_inverted_conv = set_layer_from_config(config['mobile_inverted_conv'])
-        shortcut = set_layer_from_config(config['shortcut'])
-        return MobileInvertedResidualBlock(mobile_inverted_conv, shortcut)
-
 
 class MixedEdge(MyModule):
     MODE = None  # full, two, None, full_v2
@@ -162,7 +156,3 @@ class MixedEdge(MyModule):
             'name': MixedEdge.__name__,
             'selection': [i.config for i in self.candidate_ops],
         }
-
-    @staticmethod
-    def build_from_config(config):
-        raise ValueError('not needed')

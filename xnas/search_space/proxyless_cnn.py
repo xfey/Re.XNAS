@@ -133,10 +133,6 @@ class ProxylessNASNets(MyNetwork):
             'classifier': self.classifier.config,
         }
 
-    @staticmethod
-    def build_from_config(config):
-        raise ValueError('do not support this function')
-
     def genotype(self, theta):
         genotype = []
         for i in range(theta.shape[0]):

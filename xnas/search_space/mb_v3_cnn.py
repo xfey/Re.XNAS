@@ -174,10 +174,6 @@ class MobileNetV3(MyNetwork):
                 'feature_mix_layer_flops': feature_mix_layer_flops,
                 'classifier_flops': classifier_flops}
 
-    @staticmethod
-    def build_from_config(config):
-        raise ValueError('do not support this function')
-
     def genotype(self, theta):
         genotype = []
         for i in range(theta.shape[0]):

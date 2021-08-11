@@ -27,25 +27,6 @@ class ShuffleLayer(nn.Module):
         return x
 
 
-def set_layer_from_config(layer_config):
-    if layer_config is None:
-        return None
-
-    name2layer = {
-        ConvLayer.__name__: ConvLayer,
-        DepthConvLayer.__name__: DepthConvLayer,
-        PoolingLayer.__name__: PoolingLayer,
-        IdentityLayer.__name__: IdentityLayer,
-        LinearLayer.__name__: LinearLayer,
-        ZeroLayer.__name__: ZeroLayer,
-        MBInvertedConvLayer.__name__: MBInvertedConvLayer,
-    }
-
-    layer_name = layer_config.pop('name')
-    layer = name2layer[layer_name]
-    return layer.build_from_config(layer_config)
-
-
 class My2DLayer(MyModule):
 
     def __init__(self, in_channels, out_channels,
@@ -127,9 +108,6 @@ class My2DLayer(MyModule):
             'ops_order': self.ops_order,
         }
 
-    @staticmethod
-    def build_from_config(config):
-        raise NotImplementedError
 
     @staticmethod
     def is_zero_layer():
@@ -182,10 +160,6 @@ class ConvLayer(My2DLayer):
             **super(ConvLayer, self).config,
         }
 
-    @staticmethod
-    def build_from_config(config):
-        return ConvLayer(**config)
-
 
 class DepthConvLayer(My2DLayer):
 
@@ -237,10 +211,6 @@ class DepthConvLayer(My2DLayer):
             **super(DepthConvLayer, self).config,
         }
 
-    @staticmethod
-    def build_from_config(config):
-        return DepthConvLayer(**config)
-
 
 class PoolingLayer(My2DLayer):
 
@@ -281,10 +251,6 @@ class PoolingLayer(My2DLayer):
             **super(PoolingLayer, self).config
         }
 
-    @staticmethod
-    def build_from_config(config):
-        return PoolingLayer(**config)
-
 
 class IdentityLayer(My2DLayer):
 
@@ -301,10 +267,6 @@ class IdentityLayer(My2DLayer):
             'name': IdentityLayer.__name__,
             **super(IdentityLayer, self).config,
         }
-
-    @staticmethod
-    def build_from_config(config):
-        return IdentityLayer(**config)
 
 
 class LinearLayer(MyModule):
@@ -386,10 +348,6 @@ class LinearLayer(MyModule):
         }
 
     @staticmethod
-    def build_from_config(config):
-        return LinearLayer(**config)
-
-    @staticmethod
     def is_zero_layer():
         return False
 
@@ -409,10 +367,6 @@ class ZeroLayer(MyModule):
             'name': ZeroLayer.__name__,
             'stride': self.stride,
         }
-
-    @staticmethod
-    def build_from_config(config):
-        return ZeroLayer(**config)
 
     @staticmethod
     def is_zero_layer():
@@ -507,10 +461,6 @@ class MBInvertedConvLayer(MyModule):
             'act_func': self.act_func,
             'use_se': self.use_se,
         }
-
-    @staticmethod
-    def build_from_config(config):
-        return MBInvertedConvLayer(**config)
 
     @staticmethod
     def is_zero_layer():
