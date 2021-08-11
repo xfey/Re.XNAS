@@ -15,6 +15,7 @@ from xnas.core.timer import Timer
 from xnas.core.builders import build_space, build_loss_fun, lr_scheduler_builder
 from xnas.core.config import cfg
 from xnas.core.trainer import setup_env, test_epoch
+from xnas.datasets.cifar10 import data_transforms_cifar10
 from xnas.search_algorithm.PCDARTS import *
 from DARTS_search import darts_load_checkpoint, darts_save_checkpoint
 
@@ -45,7 +46,7 @@ def pcdarts_train_model():
         pcdarts_controller, cfg.OPTIM.MOMENTUM, cfg.OPTIM.WEIGHT_DECAY)
 
     # Load dataset
-    train_transform, valid_transform = _data_transforms_cifar10()
+    train_transform, valid_transform = data_transforms_cifar10(cutout_length=0)
 
     train_data = dset.CIFAR10(
         root=cfg.SEARCH.DATASET, train=True, download=True, transform=train_transform)
@@ -201,24 +202,6 @@ def train_epoch(train_loader, valid_loader, model, architect, loss_fun, w_optimi
     # Log epoch stats
     train_meter.log_epoch_stats(cur_epoch)
     train_meter.reset()
-
-
-def _data_transforms_cifar10():
-    CIFAR_MEAN = [0.49139968, 0.48215827, 0.44653124]
-    CIFAR_STD = [0.24703233, 0.24348505, 0.26158768]
-
-    train_transform = transforms.Compose([
-        transforms.RandomCrop(32, padding=4),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize(CIFAR_MEAN, CIFAR_STD),
-    ])
-
-    valid_transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize(CIFAR_MEAN, CIFAR_STD),
-    ])
-    return train_transform, valid_transform
 
 
 if __name__ == "__main__":

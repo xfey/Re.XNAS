@@ -24,6 +24,7 @@ from xnas.core.builders import build_loss_fun, lr_scheduler_builder
 from xnas.core.trainer import setup_env
 from xnas.search_space.cellbased_DARTS_cnn import AugmentCNN
 from xnas.datasets.loader import construct_loader
+from xnas.datasets.cifar10 import data_transforms_cifar10
 
 device = torch.device("cuda")
 
@@ -36,24 +37,6 @@ config.load_cfg_fom_args()
 config.assert_and_infer_cfg()
 cfg.freeze()
 
-
-"""
---genotype "Genotype(
-    normal=[
-        [('sep_conv_5x5', 1), ('sep_conv_3x3', 0)],
-        [('skip_connect', 0), ('sep_conv_5x5', 1)],
-        [('sep_conv_5x5', 3), ('sep_conv_3x3', 1)],
-        [('dil_conv_5x5', 3), ('max_pool_3x3', 4)],
-    ],
-    normal_concat=range(2, 6),
-    reduce=[
-        [('max_pool_3x3', 0), ('sep_conv_5x5', 1)],
-        [('skip_connect', 0), ('skip_connect', 1)],
-        [('sep_conv_3x3', 3), ('skip_connect', 2)],
-        [('dil_conv_3x3', 3), ('sep_conv_5x5', 0)],
-    ],
-    reduce_concat=range(2, 6))"
-"""
 
 def main():
     setup_env()
@@ -218,7 +201,7 @@ def get_data(dataset, data_path, cutout_length, validation):
     else:
         raise NotImplementedError
 
-    trn_transform, val_transform = _data_transforms_cifar10(cutout_length)
+    trn_transform, val_transform = data_transforms_cifar10(cutout_length)
     trn_data = dset_cls(root=data_path, train=True, download=True, transform=trn_transform)
 
     # assuming shape is NHW or NHWC
@@ -241,50 +224,6 @@ def get_data(dataset, data_path, cutout_length, validation):
     return ret
 
 
-def _data_transforms_cifar10(cutout_length):
-    CIFAR_MEAN = [0.49139968, 0.48215827, 0.44653124]
-    CIFAR_STD = [0.24703233, 0.24348505, 0.26158768]
-
-    train_transform = transforms.Compose([
-        transforms.RandomCrop(32, padding=4),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize(CIFAR_MEAN, CIFAR_STD),
-    ])
-
-    valid_transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize(CIFAR_MEAN, CIFAR_STD),
-    ])
-
-    if cutout_length > 0:
-        train_transform.transforms.append(Cutout(cutout_length))
-
-    return train_transform, valid_transform
-
-
-class Cutout(object):
-    def __init__(self, length):
-        self.length = length
-
-    def __call__(self, img):
-        h, w = img.size(1), img.size(2)
-        mask = np.ones((h, w), np.float32)
-        y = np.random.randint(h)
-        x = np.random.randint(w)
-
-        y1 = np.clip(y - self.length // 2, 0, h)
-        y2 = np.clip(y + self.length // 2, 0, h)
-        x1 = np.clip(x - self.length // 2, 0, w)
-        x2 = np.clip(x + self.length // 2, 0, w)
-
-        mask[y1: y2, x1: x2] = 0.
-        mask = torch.from_numpy(mask)
-        mask = mask.expand_as(img)
-        img *= mask
-
-        return img
-
 def save_checkpoint(state, ckpt_dir, is_best=False):
     filename = os.path.join(ckpt_dir, 'checkpoint.pth.tar')
     torch.save(state, filename)
@@ -294,9 +233,4 @@ def save_checkpoint(state, ckpt_dir, is_best=False):
 
 
 if __name__ == "__main__":
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument('--genotype', required=False, help='Cell genotype')
-    # args = parser.parse_args()
-    # arg_genotype = args.genotype
-    # _genotype = gt.from_str(arg_genotype)
     main()

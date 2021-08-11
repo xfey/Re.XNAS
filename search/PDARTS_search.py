@@ -202,30 +202,30 @@ def train_epoch(train_loader, valid_loader, model, architect, loss_fun, w_optimi
             nn.utils.clip_grad_norm_(model.alphas_weight(), cfg.OPTIM.GRAD_CLIP)
             alpha_optimizer.step()
 
-        # # phase 1. child network step (w)
-        # if scaler is not None:
-        #     with torch.cuda.amp.autocast():
-        #         # Perform the forward pass in AMP
-        #         preds = model(trn_X)
-        #         # Compute the loss in AMP
-        #         loss = loss_fun(preds, trn_y)
-        #         # Perform the backward pass in AMP
-        #         w_optimizer.zero_grad()
-        #         scaler.scale(loss).backward()
-        #         scaler.step(w_optimizer)
-        #         # Updates the scale for next iteration.
-        #         scaler.update()
-        # else:
-        preds = model(trn_X)
-        # Compute the loss
-        loss = loss_fun(preds, trn_y)
-        # Perform the backward pass
-        w_optimizer.zero_grad()
-        loss.backward()
-        # gradient clipping
-        nn.utils.clip_grad_norm_(model.weights(), cfg.OPTIM.GRAD_CLIP)
-        # Update the parameters
-        w_optimizer.step()
+        # phase 1. child network step (w)
+        if scaler is not None:
+            with torch.cuda.amp.autocast():
+                # Perform the forward pass in AMP
+                preds = model(trn_X)
+                # Compute the loss in AMP
+                loss = loss_fun(preds, trn_y)
+                # Perform the backward pass in AMP
+                w_optimizer.zero_grad()
+                scaler.scale(loss).backward()
+                scaler.step(w_optimizer)
+                # Updates the scale for next iteration.
+                scaler.update()
+        else:
+            preds = model(trn_X)
+            # Compute the loss
+            loss = loss_fun(preds, trn_y)
+            # Perform the backward pass
+            w_optimizer.zero_grad()
+            loss.backward()
+            # gradient clipping
+            nn.utils.clip_grad_norm_(model.weights(), cfg.OPTIM.GRAD_CLIP)
+            # Update the parameters
+            w_optimizer.step()
         # Compute the errors
         top1_err, top5_err = meters.topk_errors(preds, trn_y, [1, 5])
         # Copy the stats from GPU to CPU (sync point)

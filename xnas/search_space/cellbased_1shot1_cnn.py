@@ -2,10 +2,10 @@ from xnas.search_space.cellbased_1shot1_ops import *
 from xnas.core.utils import index_to_one_hot, one_hot_to_index
 
 
-class Cell(nn.Module):
+class NASBench1shot1Cell(nn.Module):
 
     def __init__(self, steps, C_prev, C, layer, search_space):
-        super(Cell, self).__init__()
+        super(NASBench1shot1Cell, self).__init__()
         self._steps = steps
 
         self._choice_blocks = nn.ModuleList()
@@ -48,10 +48,10 @@ class Cell(nn.Module):
         return output_weights[0][0] * input_to_output_edge + torch.cat(tensor_list, dim=1)
 
 
-class Network(nn.Module):
+class NASBench1shot1CNN(nn.Module):
 
     def __init__(self, C, num_classes, layers, search_space, steps=4):
-        super(Network, self).__init__()
+        super(NASBench1shot1CNN, self).__init__()
         self._C = C
         self._num_classes = num_classes
         self._layers = layers
@@ -69,7 +69,7 @@ class Network(nn.Module):
                 # Double the number of channels after each down-sampling step
                 # Down-sample in forward method
                 C_curr *= 2
-            cell = Cell(steps=self._steps, C_prev=C_prev, C=C_curr, layer=i, search_space=search_space)
+            cell = NASBench1shot1Cell(steps=self._steps, C_prev=C_prev, C=C_curr, layer=i, search_space=search_space)
             self.cells += [cell]
             C_prev = C_curr
         self.postprocess = StdConv(C_in=C_prev * self._steps, C_out=C_curr, kernel_size=1, stride=1, padding=0,
@@ -127,7 +127,7 @@ class Network(nn.Module):
 
 def _NASbench1shot1_1():
     from xnas.core.config import cfg
-    return Network(C=cfg.SPACE.CHANNEL,
+    return NASBench1shot1CNN(C=cfg.SPACE.CHANNEL,
                    num_classes=cfg.SPACE.NUM_CLASSES,
                    layers=9,
                    search_space=SearchSpace1(),
@@ -136,7 +136,7 @@ def _NASbench1shot1_1():
 
 def _NASbench1shot1_2():
     from xnas.core.config import cfg
-    return Network(C=cfg.SPACE.CHANNEL,
+    return NASBench1shot1CNN(C=cfg.SPACE.CHANNEL,
                    num_classes=cfg.SPACE.NUM_CLASSES,
                    layers=9,
                    search_space=SearchSpace2(),
@@ -145,7 +145,7 @@ def _NASbench1shot1_2():
 
 def _NASbench1shot1_3():
     from xnas.core.config import cfg
-    return Network(C=cfg.SPACE.CHANNEL,
+    return NASBench1shot1CNN(C=cfg.SPACE.CHANNEL,
                    num_classes=cfg.SPACE.NUM_CLASSES,
                    layers=9,
                    search_space=SearchSpace3(),
