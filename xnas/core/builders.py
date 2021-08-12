@@ -21,17 +21,17 @@ from xnas.search_space.cellbased_PCDARTS_cnn import _PcdartsCNN
 from xnas.search_space.cellbased_NASBench201_cnn import _NASBench201
 from xnas.search_space.cellbased_1shot1_cnn import _NASbench1shot1_1, _NASbench1shot1_2, _NASbench1shot1_3
 
-from xnas.search_space.mb_v3_cnn import build_mb_super_net
-from xnas.search_space.proxyless_cnn import build_proxyless_super_net
+from xnas.search_space.mb_v3_cnn import _MobileNetV3CNN
+from xnas.search_space.proxyless_cnn import _ProxylessCNN, _Proxyless_Google_CNN
 
 # Supported models
 _spaces = {
     "darts": _DartsCNN,
     "pdarts": _PdartsCNN,
     "pcdarts": _PcdartsCNN,
-    "ofa": build_mb_super_net,
-    "google": build_proxyless_super_net,
-    "proxyless": build_proxyless_super_net,
+    "ofa": _MobileNetV3CNN,
+    "proxyless": _ProxylessCNN,
+    "google": _Proxyless_Google_CNN,
     "nasbench201": _NASBench201,
     "nasbench1shot1_1": _NASbench1shot1_1,
     "nasbench1shot1_2": _NASbench1shot1_2,

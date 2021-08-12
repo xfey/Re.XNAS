@@ -12,44 +12,49 @@ logger = logging.get_logger(__name__)
 
 class MobileNetV3(MyNetwork):
 
-    def __init__(self, n_classes=1000, base_stage_width=None, width_mult=1.2, depth=4):
+    def __init__(self, n_classes=1000, width_mult=1.2, depth=4):
         super(MobileNetV3, self).__init__()
 
         self.width_mult = width_mult
         self.depth = depth
-        self.base_stage_width = base_stage_width
         self.conv_candidates = [
             '3x3_MBConv3', '3x3_MBConv6',
             '5x5_MBConv3', '5x5_MBConv6',
             '7x7_MBConv3', '7x7_MBConv6',
         ] if len(cfg.MB.BASIC_OP) == 0 else cfg.MB.BASIC_OP
 
-        if self.base_stage_width == 'ofa':
-            base_stage_width = [16, 24, 40, 80, 112, 160, 960, 1280]
-        else:
-            raise NotImplementedError
-        self.base_stage_width = base_stage_width
-        final_expand_width = make_divisible(base_stage_width[-2] * self.width_mult, 8)
-        last_channel = make_divisible(base_stage_width[-1] * self.width_mult, 8)
+        # ofa
+        self.base_stage_width = [16, 24, 40, 80, 112, 160, 960, 1280]
 
-        self.stride_stages = [1, 2, 2, 2, 1, 2] if len(cfg.MB.STRIDE_STAGES) == 0 else cfg.MB.STRIDE_STAGES
+        final_expand_width = make_divisible(
+            self.base_stage_width[-2] * self.width_mult, 8)
+        last_channel = make_divisible(
+            self.base_stage_width[-1] * self.width_mult, 8)
+
+        self.stride_stages = [1, 2, 2, 2, 1, 2] if len(
+            cfg.MB.STRIDE_STAGES) == 0 else cfg.MB.STRIDE_STAGES
         self.act_stages = ['relu', 'relu', 'relu', 'h_swish',
                            'h_swish', 'h_swish'] if len(cfg.MB.ACT_STAGES) == 0 else cfg.MB.ACT_STAGES
-        self.se_stages = [False, False, True, False, True, True] if len(cfg.MB.SE_STAGES) == 0 else cfg.MB.SE_STAGES
+        self.se_stages = [False, False, True, False, True, True] if len(
+            cfg.MB.SE_STAGES) == 0 else cfg.MB.SE_STAGES
         n_block_list = [1] + [self.depth] * 5
         width_list = []
-        for base_width in base_stage_width[:-2]:
+        for base_width in self.base_stage_width[:-2]:
             width = make_divisible(base_width * self.width_mult, 8)
             width_list.append(width)
-
         input_channel = width_list[0]
+
         # first conv layer
-        first_conv = ConvLayer(3, input_channel, kernel_size=3, stride=2, act_func='h_swish')
+        first_conv = ConvLayer(
+            3, input_channel, kernel_size=3, stride=2, act_func='h_swish')
+
+        # first block
         first_block_conv = MBInvertedConvLayer(
             in_channels=input_channel, out_channels=input_channel, kernel_size=3, stride=self.stride_stages[0],
             expand_ratio=1, act_func=self.act_stages[0], use_se=self.se_stages[0],
         )
-        first_block = MobileInvertedResidualBlock(first_block_conv, IdentityLayer(input_channel, input_channel))
+        first_block = MobileInvertedResidualBlock(
+            first_block_conv, IdentityLayer(input_channel, input_channel))
 
         # inverted residual blocks
         blocks = nn.ModuleList()
@@ -69,7 +74,8 @@ class MobileNetV3(MyNetwork):
                 if stride == 1 and feature_dim == width:
                     modified_conv_candidates = self.conv_candidates + ['Zero']
                 else:
-                    modified_conv_candidates = self.conv_candidates + ['3x3_MBConv1']
+                    modified_conv_candidates = self.conv_candidates + \
+                        ['3x3_MBConv1']
                 self.candidate_ops.append(modified_conv_candidates)
                 conv_op = MixedEdge(candidate_ops=build_candidate_ops(
                     modified_conv_candidates, feature_dim, width, stride, 'weight_bn_act',
@@ -81,7 +87,8 @@ class MobileNetV3(MyNetwork):
                 blocks.append(MobileInvertedResidualBlock(conv_op, shortcut))
                 feature_dim = width
         # final expand layer, feature mix layer & classifier
-        final_expand_layer = ConvLayer(feature_dim, final_expand_width, kernel_size=1, act_func='h_swish')
+        final_expand_layer = ConvLayer(
+            feature_dim, final_expand_width, kernel_size=1, act_func='h_swish')
         feature_mix_layer = ConvLayer(
             final_expand_width, last_channel, kernel_size=1, bias=False, use_bn=False, act_func='h_swish',
         )
@@ -131,8 +138,9 @@ class MobileNetV3(MyNetwork):
         return genotype
 
 
-def build_mb_super_net():
-    assert cfg.SPACE.NAME == 'ofa', "invalid space name"
-    super_net = MobileNetV3(cfg.SPACE.NUM_CLASSES, cfg.SPACE.NAME, cfg.MB.WIDTH_MULTI, cfg.MB.DEPTH)
-    super_net.cuda()
-    return super_net
+def _MobileNetV3CNN():
+    # remember to add cuda() for it.
+    return MobileNetV3(
+        n_classes=cfg.SPACE.NUM_CLASSES,
+        width_mult=cfg.MB.WIDTH_MULTI,
+        depth=cfg.MB.DEPTH)
