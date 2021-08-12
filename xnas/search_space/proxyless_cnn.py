@@ -98,6 +98,11 @@ class ProxylessNASNets(MyNetwork):
         self.classifier = classifier
         self.global_avg_pooling = nn.AdaptiveAvgPool2d(1)
 
+        self.all_edges = len(self.blocks) - 1
+        self.num_edges = len(self.blocks) - 1
+        self.num_ops = len(self.conv_candidates) + 1
+
+
     """ MyNetwork required methods """
 
     @staticmethod
@@ -130,51 +135,9 @@ class ProxylessNASNets(MyNetwork):
             genotype.append(self.candidate_ops[i][np.argmax(theta[i])])
         return genotype
 
-    def flops_counter_per_layer(self, input_size=None):
-        self.eval()
-        if input_size is None:
-            input_size = [1, 3, 224, 224]
-        original_device = self.parameters().__next__().device
-        x = torch.zeros(input_size).to(original_device)
-        first_conv_flpos, _ = profile(self.first_conv, input_size)
-        x = self.first_conv(x)
-        block_flops = []
-        for block in self.blocks:
-            if not isinstance(block.mobile_inverted_conv, MixedEdge):
-                _flops, _ = profile(block, x.size())
-                block_flops.append([_flops])
-                x = block(x)
-            else:
-                _flops_list = []
-                for i in range(block.mobile_inverted_conv.n_choices):
-                    if isinstance(block.mobile_inverted_conv.candidate_ops[i], ZeroLayer):
-                        _flops_list.append(0)
-                    else:
-                        _flops, _ = profile(block.mobile_inverted_conv.candidate_ops[i], x.size())
-                        _flops_list.append(_flops)
-                block_flops.append(_flops_list)
-                x = block(x)
-        feature_mix_layer_flops, _ = profile(self.feature_mix_layer, x.size())
-        x = self.feature_mix_layer(x)
-        x = self.global_avg_pooling(x)
-        x = x.view(x.size(0), -1)  # flatten
-        classifier_flops, _ = profile(self.classifier, x.size())
-        self.train()
-        return {'first_conv_flpos': first_conv_flpos,
-                'block_flops': block_flops,
-                'feature_mix_layer_flops': feature_mix_layer_flops,
-                'classifier_flops': classifier_flops}
-
 
 def build_proxyless_super_net():
     assert cfg.SPACE.NAME in ['proxyless', 'google'], "invalid space name"
     super_net = ProxylessNASNets(cfg.SPACE.NUM_CLASSES, cfg.SPACE.NAME, cfg.MB.WIDTH_MULTI, cfg.MB.DEPTH)
-    super_net.all_edges = len(super_net.blocks) - 1
-    super_net.num_edges = len(super_net.blocks) - 1
-    super_net.num_ops = len(super_net.conv_candidates) + 1
     super_net.cuda()
-    flops_path = os.path.join(cfg.OUT_DIR, 'flops.json')
-    flops_ = super_net.flops_counter_per_layer(input_size=[1, 3, cfg.SEARCH.IM_SIZE, cfg.SEARCH.IM_SIZE])
-    logger.info("Saving flops to {}".format(flops_path))
-    json.dump(flops_, open(flops_path, 'a+'))
     return super_net
