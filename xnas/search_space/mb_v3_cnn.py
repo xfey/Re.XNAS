@@ -4,15 +4,15 @@ from xnas.search_space.utils import profile, make_divisible
 import json
 import xnas.core.logging as logging
 import numpy as np
+import os
+from xnas.core.config import cfg
 
 logger = logging.get_logger(__name__)
 
 
 class MobileNetV3(MyNetwork):
 
-    def __init__(self, n_classes=1000, base_stage_width=None,
-                 width_mult=1.2, conv_candidates=None, depth=4,
-                 stride_stages=None, act_stages=None, se_stages=None):
+    def __init__(self, n_classes=1000, base_stage_width=None, width_mult=1.2, depth=4):
         super(MobileNetV3, self).__init__()
 
         self.width_mult = width_mult
@@ -22,8 +22,7 @@ class MobileNetV3(MyNetwork):
             '3x3_MBConv3', '3x3_MBConv6',
             '5x5_MBConv3', '5x5_MBConv6',
             '7x7_MBConv3', '7x7_MBConv6',
-        ] if conv_candidates is None else conv_candidates
-        conv_candidates = self.conv_candidates
+        ] if len(cfg.MB.BASIC_OP) == 0 else cfg.MB.BASIC_OP
 
         if self.base_stage_width == 'ofa':
             base_stage_width = [16, 24, 40, 80, 112, 160, 960, 1280]
@@ -33,10 +32,10 @@ class MobileNetV3(MyNetwork):
         final_expand_width = make_divisible(base_stage_width[-2] * self.width_mult, 8)
         last_channel = make_divisible(base_stage_width[-1] * self.width_mult, 8)
 
-        self.stride_stages = [1, 2, 2, 2, 1, 2] if stride_stages is None else stride_stages
+        self.stride_stages = [1, 2, 2, 2, 1, 2] if len(cfg.MB.STRIDE_STAGES) == 0 else cfg.MB.STRIDE_STAGES
         self.act_stages = ['relu', 'relu', 'relu', 'h_swish',
-                           'h_swish', 'h_swish'] if act_stages is None else act_stages
-        self.se_stages = [False, False, True, False, True, True] if se_stages is None else se_stages
+                           'h_swish', 'h_swish'] if len(cfg.MB.ACT_STAGES) == 0 else cfg.MB.ACT_STAGES
+        self.se_stages = [False, False, True, False, True, True] if len(cfg.MB.SE_STAGES) == 0 else cfg.MB.SE_STAGES
         n_block_list = [1] + [self.depth] * 5
         width_list = []
         for base_width in base_stage_width[:-2]:
@@ -68,9 +67,9 @@ class MobileNetV3(MyNetwork):
                     stride = 1
                     # conv
                 if stride == 1 and feature_dim == width:
-                    modified_conv_candidates = conv_candidates + ['Zero']
+                    modified_conv_candidates = self.conv_candidates + ['Zero']
                 else:
-                    modified_conv_candidates = conv_candidates + ['3x3_MBConv1']
+                    modified_conv_candidates = self.conv_candidates + ['3x3_MBConv1']
                 self.candidate_ops.append(modified_conv_candidates)
                 conv_op = MixedEdge(candidate_ops=build_candidate_ops(
                     modified_conv_candidates, feature_dim, width, stride, 'weight_bn_act',
@@ -167,30 +166,15 @@ class MobileNetV3(MyNetwork):
         return genotype
 
 
-def get_super_net(n_classes=1000, base_stage_width=None, width_mult=1.2, conv_candidates=None, depth=4,
-                  stride_stages=None, act_stages=None, se_stages=None):
-    # proxyless, google,
-    if base_stage_width in ['proxyless', 'google']:
-        return ProxylessNASNets(n_classes=n_classes, base_stage_width=base_stage_width,
-                                width_mult=width_mult, conv_candidates=conv_candidates,
-                                depth=depth)
-    elif base_stage_width == 'ofa':
-        return MobileNetV3(n_classes=n_classes, base_stage_width=base_stage_width,
-                           width_mult=width_mult, conv_candidates=conv_candidates,
-                           depth=depth, stride_stages=stride_stages, act_stages=act_stages, se_stages=se_stages)
-    else:
-        raise NotImplementedError
+def get_mb_super_net(n_classes=1000, base_stage_width=None, width_mult=1.2, depth=4):
+
+    assert base_stage_width == 'ofa', "invalid space name"
+    return MobileNetV3(n_classes=n_classes, base_stage_width=base_stage_width,
+                        width_mult=width_mult, depth=depth)
 
 
-def build_super_net():
-    import os
-    from xnas.core.config import cfg
-    basic_op = None if len(cfg.MB.BASIC_OP) == 0 else cfg.MB.BASIC_OP
-    stride_stages = None if len(cfg.MB.STRIDE_STAGES) == 0 else cfg.MB.STRIDE_STAGES
-    act_stages = None if len(cfg.MB.ACT_STAGES) == 0 else cfg.MB.ACT_STAGES
-    se_stages = None if len(cfg.MB.SE_STAGES) == 0 else cfg.MB.SE_STAGES
-    super_net = get_super_net(cfg.SPACE.NUM_CLASSES, cfg.SPACE.NAME, cfg.MB.WIDTH_MULTI,
-                              basic_op, cfg.MB.DEPTH, stride_stages, act_stages, se_stages)
+def build_mb_super_net():
+    super_net = get_mb_super_net(cfg.SPACE.NUM_CLASSES, cfg.SPACE.NAME, cfg.MB.WIDTH_MULTI, cfg.MB.DEPTH)
     super_net.all_edges = len(super_net.blocks) - 1
     super_net.num_edges = len(super_net.blocks) - 1
     super_net.num_ops = len(super_net.conv_candidates) + 1

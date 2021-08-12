@@ -18,7 +18,7 @@ cfg = _C
 #   from core.config import cfg
 
 # ------------------------------------------------------------------------------------ #
-# Train options
+# Train indepandent model options
 # ------------------------------------------------------------------------------------ #
 _C.TRAIN = CfgNode()
 
@@ -119,8 +119,6 @@ _C.SPACE.BASIC_OP = []
 # Mobilenet Search Space options
 # ------------------------------------------------------------------------------------ #
 _C.MB = CfgNode()
-
-_C.MB.NAME = 'ofa'
 
 # depth
 _C.MB.DEPTH = 4
@@ -326,9 +324,6 @@ _C.OUT_DIR = "/tmp"
 # Config destination (in OUT_DIR)
 _C.CFG_DEST = "config.yaml"
 
-# Config destination (in OUT_DIR)
-_C.CFG_DEST = "config.yaml"
-
 # Note that non-determinism may still be present due to non-deterministic
 # operator implementations in GPU operator libraries
 _C.RNG_SEED = 1
@@ -354,7 +349,7 @@ _C.DETERMINSTIC = True
 
 
 # ------------------------------------------------------------------------------------ #
-# DARTS options
+# DARTS search options
 # ------------------------------------------------------------------------------------ #
 _C.DARTS = CfgNode()
 
@@ -366,7 +361,7 @@ _C.DARTS.ALPHA_WEIGHT_DECAY = 1e-3
 
 
 # ------------------------------------------------------------------------------------ #
-# PDARTS options
+# PDARTS search options
 # ------------------------------------------------------------------------------------ #
 _C.PDARTS = CfgNode()
 
@@ -389,15 +384,6 @@ _C.BN.EPS = 1e-5
 
 # BN momentum (BN momentum in PyTorch = 1 - BN momentum in Caffe2)
 _C.BN.MOM = 0.1
-
-
-# ------------------------------------------------------------------------------------ #
-# Deprecated keys
-# ------------------------------------------------------------------------------------ #
-
-_C.register_deprecated_key("PREC_TIME.BATCH_SIZE")
-_C.register_deprecated_key("PREC_TIME.ENABLED")
-
 
 
 def dump_cfg():

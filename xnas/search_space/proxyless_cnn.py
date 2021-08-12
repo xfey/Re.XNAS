@@ -2,12 +2,18 @@ from xnas.search_space.mb_ops import *
 from xnas.search_space.utils import profile, make_divisible
 import torch
 import pdb
+import json
+import xnas.core.logging as logging
+import os
+from xnas.core.config import cfg
+
+logger = logging.get_logger(__name__)
 
 
 class ProxylessNASNets(MyNetwork):
 
     def __init__(self, n_classes=1000, base_stage_width='proxyless',
-                 width_mult=1.3, conv_candidates=None, depth=4, stride_stages=None):
+                 width_mult=1.3, depth=4, stride_stages=None):
         super(ProxylessNASNets, self).__init__()
         self.width_mult = width_mult
         self.depth = depth
@@ -16,8 +22,7 @@ class ProxylessNASNets(MyNetwork):
             '3x3_MBConv3', '3x3_MBConv6',
             '5x5_MBConv3', '5x5_MBConv6',
             '7x7_MBConv3', '7x7_MBConv6',
-        ] if conv_candidates is None else conv_candidates
-        conv_candidates = self.conv_candidates
+        ] if len(cfg.MB.BASIC_OP) == 0 else cfg.MB.BASIC_OP
 
         if base_stage_width == 'google':
             base_stage_width = [32, 16, 24, 32, 64, 96, 160, 320, 1280]
@@ -66,9 +71,9 @@ class ProxylessNASNets(MyNetwork):
                     stride = 1
 
                 if stride == 1 and feature_dim == width:
-                    modified_conv_candidates = conv_candidates + ['Zero']
+                    modified_conv_candidates = self.conv_candidates + ['Zero']
                 else:
-                    modified_conv_candidates = conv_candidates + ['3x3_MBConv1']
+                    modified_conv_candidates = self.conv_candidates + ['3x3_MBConv1']
                 self.candidate_ops.append(modified_conv_candidates)
                 conv_op = MixedEdge(candidate_ops=build_candidate_ops(
                     modified_conv_candidates, feature_dim, width, stride, 'weight_bn_act',
@@ -161,4 +166,21 @@ class ProxylessNASNets(MyNetwork):
                 'feature_mix_layer_flops': feature_mix_layer_flops,
                 'classifier_flops': classifier_flops}
 
-# NOTE: function get_super_net() and build_super_net() written in file mv_v3_cnn.py
+
+def get_proxyless_super_net(n_classes=1000, base_stage_width=None, width_mult=1.2, depth=4):
+    assert base_stage_width in ['proxyless', 'google'], "invalid space name"
+    return ProxylessNASNets(n_classes=n_classes, base_stage_width=base_stage_width,
+                            width_mult=width_mult, depth=depth)
+
+
+def build_proxyless_super_net():
+    super_net = get_proxyless_super_net(cfg.SPACE.NUM_CLASSES, cfg.SPACE.NAME, cfg.MB.WIDTH_MULTI, cfg.MB.DEPTH)
+    super_net.all_edges = len(super_net.blocks) - 1
+    super_net.num_edges = len(super_net.blocks) - 1
+    super_net.num_ops = len(super_net.conv_candidates) + 1
+    super_net.cuda()
+    flops_path = os.path.join(cfg.OUT_DIR, 'flops.json')
+    flops_ = super_net.flops_counter_per_layer(input_size=[1, 3, cfg.SEARCH.IM_SIZE, cfg.SEARCH.IM_SIZE])
+    logger.info("Saving flops to {}".format(flops_path))
+    json.dump(flops_, open(flops_path, 'a+'))
+    return super_net

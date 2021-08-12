@@ -1,0 +1,5 @@
+SPACE:
+  NAME: 'proxyless'
+DATA_LOADER:
+  BACKEND: 'custom'
+OUT_DIR: 'experiment/Proxyless1'
