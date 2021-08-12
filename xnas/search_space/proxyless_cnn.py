@@ -12,8 +12,7 @@ logger = logging.get_logger(__name__)
 
 class ProxylessNASNets(MyNetwork):
 
-    def __init__(self, n_classes=1000, base_stage_width='proxyless',
-                 width_mult=1.3, depth=4, stride_stages=None):
+    def __init__(self, n_classes=1000, base_stage_width='proxyless', width_mult=1.3, depth=4):
         super(ProxylessNASNets, self).__init__()
         self.width_mult = width_mult
         self.depth = depth
@@ -54,7 +53,7 @@ class ProxylessNASNets(MyNetwork):
         blocks = nn.ModuleList()
         blocks.append(first_block)
 
-        self.stride_stages = [2, 2, 2, 1, 2, 1] if stride_stages is None else stride_stages
+        self.stride_stages = [2, 2, 2, 1, 2, 1] if len(cfg.MB.STRIDE_STAGES) == 0 else cfg.MB.STRIDE_STAGES
         n_block_list = [self.depth] * 5 + [1]
         width_list = []
         for base_width in base_stage_width[2:-1]:
@@ -167,14 +166,9 @@ class ProxylessNASNets(MyNetwork):
                 'classifier_flops': classifier_flops}
 
 
-def get_proxyless_super_net(n_classes=1000, base_stage_width=None, width_mult=1.2, depth=4):
-    assert base_stage_width in ['proxyless', 'google'], "invalid space name"
-    return ProxylessNASNets(n_classes=n_classes, base_stage_width=base_stage_width,
-                            width_mult=width_mult, depth=depth)
-
-
 def build_proxyless_super_net():
-    super_net = get_proxyless_super_net(cfg.SPACE.NUM_CLASSES, cfg.SPACE.NAME, cfg.MB.WIDTH_MULTI, cfg.MB.DEPTH)
+    assert cfg.SPACE.NAME in ['proxyless', 'google'], "invalid space name"
+    super_net = ProxylessNASNets(cfg.SPACE.NUM_CLASSES, cfg.SPACE.NAME, cfg.MB.WIDTH_MULTI, cfg.MB.DEPTH)
     super_net.all_edges = len(super_net.blocks) - 1
     super_net.num_edges = len(super_net.blocks) - 1
     super_net.num_ops = len(super_net.conv_candidates) + 1

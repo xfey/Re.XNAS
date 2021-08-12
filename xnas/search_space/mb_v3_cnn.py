@@ -166,15 +166,9 @@ class MobileNetV3(MyNetwork):
         return genotype
 
 
-def get_mb_super_net(n_classes=1000, base_stage_width=None, width_mult=1.2, depth=4):
-
-    assert base_stage_width == 'ofa', "invalid space name"
-    return MobileNetV3(n_classes=n_classes, base_stage_width=base_stage_width,
-                        width_mult=width_mult, depth=depth)
-
-
 def build_mb_super_net():
-    super_net = get_mb_super_net(cfg.SPACE.NUM_CLASSES, cfg.SPACE.NAME, cfg.MB.WIDTH_MULTI, cfg.MB.DEPTH)
+    assert cfg.SPACE.NAME == 'ofa', "invalid space name"
+    super_net = MobileNetV3(cfg.SPACE.NUM_CLASSES, cfg.SPACE.NAME, cfg.MB.WIDTH_MULTI, cfg.MB.DEPTH)
     super_net.all_edges = len(super_net.blocks) - 1
     super_net.num_edges = len(super_net.blocks) - 1
     super_net.num_ops = len(super_net.conv_candidates) + 1

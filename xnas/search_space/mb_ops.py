@@ -2,15 +2,6 @@ from xnas.search_space.mb_layers import *
 import numpy as np
 
 
-def int2list(val, repeat_time=1):
-    if isinstance(val, list) or isinstance(val, np.ndarray):
-        return val
-    elif isinstance(val, tuple):
-        return list(val)
-    else:
-        return [val for _ in range(repeat_time)]
-
-
 def build_candidate_ops(candidate_ops, in_channels, out_channels, stride, ops_order,
                         act_func='relu6', use_se=False):
     if candidate_ops is None:
