@@ -1,31 +1,30 @@
 """train indepandent (can be augmented) model for DARTS"""
 """only support cifar10 now"""
 
+
 import os
 import argparse
+from random import randint
 import numpy as np
 import shutil
-
 import torch
 import torch.nn as nn
 import torchvision
 import torchvision.datasets as dset
 import torchvision.transforms as transforms
 from torch.utils.tensorboard import SummaryWriter
-
+import xnas.core.checkpoint as checkpoint
 import xnas.core.config as config
 import xnas.core.distributed as dist
 import xnas.core.logging as logging
 import xnas.core.meters as meters
 import xnas.search_space.cellbased_basic_genotypes as gt
-
 from xnas.core.config import cfg
 from xnas.core.builders import build_loss_fun, lr_scheduler_builder
 from xnas.core.trainer import setup_env
 from xnas.search_space.cellbased_DARTS_cnn import AugmentCNN
 from xnas.datasets.loader import construct_loader
 from xnas.datasets.cifar10 import data_transforms_cifar10
-
 device = torch.device("cuda")
 
 writer = SummaryWriter(log_dir=os.path.join(cfg.OUT_DIR, "tb"))
@@ -49,7 +48,7 @@ def main():
 
     model = AugmentCNN(input_size, input_channels, cfg.TRAIN.INIT_CHANNELS, n_classes, cfg.TRAIN.LAYERS,
                        use_aux, cfg.TRAIN.GENOTYPE)
-    
+
     # TODO: Parallel
     # model = nn.DataParallel(model, device_ids=cfg.NUM_GPUS).to(device)
     model.cuda()
@@ -57,7 +56,7 @@ def main():
     # weights optimizer
     optimizer = torch.optim.SGD(model.parameters(), cfg.OPTIM.BASE_LR, momentum=cfg.OPTIM.MOMENTUM,
                                 weight_decay=cfg.OPTIM.WEIGHT_DECAY)
-    
+
     # Get data loader
     [train_loader, valid_loader] = construct_loader(
         cfg.SEARCH.DATASET, cfg.SEARCH.SPLIT, cfg.SEARCH.BATCH_SIZE)
@@ -71,40 +70,38 @@ def main():
     #     len_train_loader = get_train_loader_len(config.dataset.lower(), config.batch_size, is_train=True)
     # else:
     len_train_loader = len(train_loader)
-    
+
     # Training loop
     # TODO: RESUME
-    
+
     train_meter = meters.TrainMeter(len(train_loader))
     valid_meter = meters.TestMeter(len(valid_loader))
 
     start_epoch = 0
     for cur_epoch in range(start_epoch, cfg.OPTIM.MAX_EPOCH):
-        
+
         drop_prob = cfg.TRAIN.DROP_PATH_PROB * cur_epoch / cfg.OPTIM.MAX_EPOCH
         if cfg.NUM_GPUS > 1:
             model.module.drop_path_prob(drop_prob)
         else:
             model.drop_path_prob(drop_prob)
-    
-        # Training 
-        train_epoch(train_loader, model, optimizer, loss_fun, cur_epoch, train_meter)
+
+        # Training
+        train_epoch(train_loader, model, optimizer,
+                    loss_fun, cur_epoch, train_meter)
+
+        # Save a checkpoint
+        if (cur_epoch + 1) % cfg.SEARCH.CHECKPOINT_PERIOD == 0:
+            checkpoint_file = checkpoint.save_checkpoint(
+                model, optimizer, cur_epoch)
+            logger.info("Wrote checkpoint to: {}".format(checkpoint_file))
 
         lr_scheduler.step()
 
         # Validation
         cur_step = (cur_epoch + 1) * len(train_loader)
-        top1 = valid_epoch(valid_loader, model, loss_fun, cur_epoch, cur_step, valid_meter)
-        
-        # Saving
-        if best_top1 < top1:
-            best_top1 = top1
-            is_best = True
-        else:
-            is_best = False
-        save_checkpoint(model, cfg.OUT_DIR, is_best)
-
-        print("")
+        top1 = valid_epoch(valid_loader, model, loss_fun,
+                           cur_epoch, cur_step, valid_meter)
 
     logger.info("Final best Prec@1 = {:.4%}".format(best_top1))
 
@@ -122,7 +119,7 @@ def train_epoch(train_loader, model, optimizer, criterion, cur_epoch, train_mete
     cur_lr = optimizer.param_groups[0]['lr']
     writer.add_scalar('train/lr', cur_lr, cur_step)
 
-    #TODO: DALI backend support
+    # TODO: DALI backend support
     # if config.data_loader_type == 'DALI':
     #     for cur_iter, data in enumerate(train_loader):
     #         X = data[0]["data"].cuda(non_blocking=True)
@@ -202,7 +199,8 @@ def get_data(dataset, data_path, cutout_length, validation):
         raise NotImplementedError
 
     trn_transform, val_transform = data_transforms_cifar10(cutout_length)
-    trn_data = dset_cls(root=data_path, train=True, download=True, transform=trn_transform)
+    trn_data = dset_cls(root=data_path, train=True,
+                        download=True, transform=trn_transform)
 
     # assuming shape is NHW or NHWC
     if hasattr(trn_data, 'data'):
@@ -218,18 +216,11 @@ def get_data(dataset, data_path, cutout_length, validation):
         input_size = 24
 
     ret = [input_size, input_channels, n_classes, trn_data]
-    if validation: # append validation data
-        ret.append(dset_cls(root=data_path, train=False, download=True, transform=val_transform))
+    if validation:  # append validation data
+        ret.append(dset_cls(root=data_path, train=False,
+                   download=True, transform=val_transform))
 
     return ret
-
-
-def save_checkpoint(state, ckpt_dir, is_best=False):
-    filename = os.path.join(ckpt_dir, 'checkpoint.pth.tar')
-    torch.save(state, filename)
-    if is_best:
-        best_filename = os.path.join(ckpt_dir, 'best.pth.tar')
-        shutil.copyfile(filename, best_filename)
 
 
 if __name__ == "__main__":
