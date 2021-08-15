@@ -99,7 +99,7 @@ _C.SPACE.LOSS_FUN = 'cross_entropy'
 # num of classes
 _C.SPACE.NUM_CLASSES = 10
 
-# Init channel
+# channel after first layer (e.g. rgb=3 -> 16 here)
 _C.SPACE.CHANNEL = 16
 
 # number of layers
