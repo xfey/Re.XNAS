@@ -43,6 +43,8 @@ def main():
     input_size, input_channels, n_classes, train_data, valid_data = get_data(
         cfg.SEARCH.DATASET, cfg.SEARCH.DATAPATH, cfg.TRAIN.CUTOUT_LENGTH, validation=True)
 
+    print(input_size, input_channels, n_classes, '===', cfg.SEARCH.IM_SIZE, cfg.SPACE.CHANNEL, cfg.SPACE.NUM_CLASSES)
+
     loss_fun = build_loss_fun().cuda()
     use_aux = cfg.TRAIN.AUX_WEIGHT > 0.
 

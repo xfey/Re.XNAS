@@ -1,6 +1,6 @@
 DATA_LOADER:
   BACKEND: 'custom'
-OUT_DIR: '/userhome/project/XNAS/experiment/darts'
+OUT_DIR: 'experiment/test2'
 SEARCH:
   DATASET: 'cifar10'
   SPLIT: [0.8, 0.2]
