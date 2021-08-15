@@ -64,6 +64,9 @@ _C.SEARCH.BATCH_SIZE = 256
 # Image size
 _C.SEARCH.IM_SIZE = 32
 
+# Image channel (rgb=3)
+_C.SEARCH.CHANNEL = 3
+
 # Loss function
 _C.SEARCH.LOSS_FUN = 'cross_entropy'
 
