@@ -43,6 +43,7 @@ def main():
     input_size, input_channels, n_classes, train_data, valid_data = get_data(
         cfg.SEARCH.DATASET, cfg.SEARCH.DATAPATH, cfg.TRAIN.CUTOUT_LENGTH, validation=True)
 
+    # 32 3 10 === 32 16 10
     print(input_size, input_channels, n_classes, '===', cfg.SEARCH.IM_SIZE, cfg.SPACE.CHANNEL, cfg.SPACE.NUM_CLASSES)
 
     loss_fun = build_loss_fun().cuda()

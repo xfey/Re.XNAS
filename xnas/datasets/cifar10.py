@@ -16,6 +16,8 @@ import xnas.datasets.transforms as transforms
 import torch.utils.data
 from xnas.core.config import cfg
 
+import torchvision.transforms as torch_trans
+
 
 logger = logging.get_logger(__name__)
 
@@ -117,16 +119,16 @@ def data_transforms_cifar10(cutout_length):
     CIFAR_MEAN = [0.49139968, 0.48215827, 0.44653124]
     CIFAR_STD = [0.24703233, 0.24348505, 0.26158768]
 
-    train_transform = transforms.Compose([
-        transforms.RandomCrop(32, padding=4),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize(CIFAR_MEAN, CIFAR_STD),
+    train_transform = torch_trans.Compose([
+        torch_trans.RandomCrop(32, padding=4),
+        torch_trans.RandomHorizontalFlip(),
+        torch_trans.ToTensor(),
+        torch_trans.Normalize(CIFAR_MEAN, CIFAR_STD),
     ])
 
-    valid_transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize(CIFAR_MEAN, CIFAR_STD),
+    valid_transform = torch_trans.Compose([
+        torch_trans.ToTensor(),
+        torch_trans.Normalize(CIFAR_MEAN, CIFAR_STD),
     ])
 
     if cutout_length > 0:
