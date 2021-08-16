@@ -17,6 +17,8 @@ SNG:
   PROB_SAMPLING: False
   MOMENTUM: True
   GAMMA: 0.9
+  WARMUP_RANDOM_SAMPLE: False
+  RANDOM_SAMPLE: False
 DATA_LOADER:
   BACKEND: 'custom'
-OUT_DIR: '/userhome/project/XNAS/experiment/DDPNAS_test'
+OUT_DIR: 'experiment/DDPNAS_ofa_test'
