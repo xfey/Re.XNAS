@@ -212,7 +212,7 @@ def _PdartsCNN():
     from xnas.core.config import cfg
     return PdartsCNN(
         C=cfg.SPACE.CHANNEL+cfg.SEARCH.add_width,
-        n_classes=cfg.SPACE.NUM_CLASSES,
+        n_classes=cfg.SEARCH.NUM_CLASSES,
         n_layers=cfg.SPACE.LAYERS+cfg.SEARCH.add_layers,
         n_nodes=cfg.SPACE.NODES,
         basic_op_list=cfg.SPACE.BASIC_OP,

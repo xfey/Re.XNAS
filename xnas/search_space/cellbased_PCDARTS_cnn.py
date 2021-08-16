@@ -294,7 +294,7 @@ def _PcdartsCNN():
     from xnas.core.config import cfg
     return PcDartsCNN(
         C=cfg.SPACE.CHANNEL,
-        n_classes=cfg.SPACE.NUM_CLASSES,
+        n_classes=cfg.SEARCH.NUM_CLASSES,
         n_layers=cfg.SPACE.LAYERS,
         n_nodes=cfg.SPACE.NODES,
         basic_op_list=cfg.SPACE.BASIC_OP)

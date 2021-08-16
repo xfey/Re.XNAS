@@ -55,6 +55,9 @@ _C.SEARCH = CfgNode()
 # Dataset
 _C.SEARCH.DATASET = "cifar10"
 
+# num of classes
+_C.SEARCH.NUM_CLASSES = 10
+
 # Split
 _C.SEARCH.SPLIT = [0.8, 0.2]
 
@@ -99,8 +102,6 @@ _C.SPACE.NAME = 'darts'
 # Loss function
 _C.SPACE.LOSS_FUN = 'cross_entropy'
 
-# num of classes
-_C.SPACE.NUM_CLASSES = 10
 
 # channel after first layer (e.g. rgb=3 -> 16 here)
 _C.SPACE.CHANNEL = 16

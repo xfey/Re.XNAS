@@ -139,7 +139,7 @@ class ProxylessNASNets(MyNetwork):
 
 def _ProxylessCNN():
     ProxylessNASNets(
-        n_classes=cfg.SPACE.NUM_CLASSES,
+        n_classes=cfg.SEARCH.NUM_CLASSES,
         space_name='proxyless',
         width_mult=cfg.MB.WIDTH_MULTI,
         depth=cfg.MB.DEPTH)
@@ -147,7 +147,7 @@ def _ProxylessCNN():
 
 def _Proxyless_Google_CNN():
     ProxylessNASNets(
-        n_classes=cfg.SPACE.NUM_CLASSES,
+        n_classes=cfg.SEARCH.NUM_CLASSES,
         space_name='google',
         width_mult=cfg.MB.WIDTH_MULTI,
         depth=cfg.MB.DEPTH)

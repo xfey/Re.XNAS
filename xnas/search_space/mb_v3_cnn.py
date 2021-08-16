@@ -141,6 +141,6 @@ class MobileNetV3(MyNetwork):
 def _MobileNetV3CNN():
     # remember to add cuda() for it.
     return MobileNetV3(
-        n_classes=cfg.SPACE.NUM_CLASSES,
+        n_classes=cfg.SEARCH.NUM_CLASSES,
         width_mult=cfg.MB.WIDTH_MULTI,
         depth=cfg.MB.DEPTH)

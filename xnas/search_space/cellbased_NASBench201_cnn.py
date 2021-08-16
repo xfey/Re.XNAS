@@ -122,5 +122,5 @@ def _NASBench201():
     return NASBench201CNN(C=cfg.SPACE.CHANNEL,
                           N=cfg.SPACE.LAYERS,
                           max_nodes=cfg.SPACE.NODES,
-                          num_classes=cfg.SPACE.NUM_CLASSES,
+                          num_classes=cfg.SEARCH.NUM_CLASSES,
                           basic_op_list=cfg.SPACE.BASIC_OP)

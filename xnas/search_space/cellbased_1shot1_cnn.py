@@ -128,7 +128,7 @@ class NASBench1shot1CNN(nn.Module):
 def _NASbench1shot1_1():
     from xnas.core.config import cfg
     return NASBench1shot1CNN(C=cfg.SPACE.CHANNEL,
-                   num_classes=cfg.SPACE.NUM_CLASSES,
+                   num_classes=cfg.SEARCH.NUM_CLASSES,
                    layers=9,
                    search_space=SearchSpace1(),
                    steps=4)
@@ -137,7 +137,7 @@ def _NASbench1shot1_1():
 def _NASbench1shot1_2():
     from xnas.core.config import cfg
     return NASBench1shot1CNN(C=cfg.SPACE.CHANNEL,
-                   num_classes=cfg.SPACE.NUM_CLASSES,
+                   num_classes=cfg.SEARCH.NUM_CLASSES,
                    layers=9,
                    search_space=SearchSpace2(),
                    steps=4)
@@ -146,7 +146,7 @@ def _NASbench1shot1_2():
 def _NASbench1shot1_3():
     from xnas.core.config import cfg
     return NASBench1shot1CNN(C=cfg.SPACE.CHANNEL,
-                   num_classes=cfg.SPACE.NUM_CLASSES,
+                   num_classes=cfg.SEARCH.NUM_CLASSES,
                    layers=9,
                    search_space=SearchSpace3(),
                    steps=5)
