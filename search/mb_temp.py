@@ -88,14 +88,6 @@ def main():
         total_edges = len(model.blocks) - 1
         num_ops = len(config.conv_candidates) + 1
         model = model.to(device)
-        super_net_config_path = os.path.join(config.network_info_path, 'supernet.json')
-        super_net_config = model.config
-        logger.info("Saving search supernet to {}".format(super_net_config_path))
-        json.dump(super_net_config, open(super_net_config_path, 'a+'))
-        flops_path = os.path.join(config.network_info_path, 'flops.json')
-        flops_ = model.flops_counter_per_layer(input_size=[1, 3, 224, 224])
-        logger.info("Saving flops to {}".format(flops_path))
-        json.dump(flops_, open(flops_path, 'a+'))
     else:
         raise NotImplementedError
 

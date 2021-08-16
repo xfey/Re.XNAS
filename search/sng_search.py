@@ -97,16 +97,19 @@ def train_model():
     search_space = build_space()
     search_space.cuda()
     loss_fun = build_loss_fun().cuda()
-    # Load dataset
-    [train_, val_] = construct_loader(
-        cfg.SEARCH.DATASET, cfg.SEARCH.SPLIT, cfg.SEARCH.BATCH_SIZE)
+    
     # Weights optimizer
     w_optim = torch.optim.SGD(search_space.parameters(),
                               cfg.OPTIM.BASE_LR,
                               momentum=cfg.OPTIM.MOMENTUM,
                               weight_decay=cfg.OPTIM.WEIGHT_DECAY)
+    
     # Build distribution_optimizer
-    if cfg.SPACE.NAME in ["nasbench1shot1_1", "nasbench1shot1_2", "nasbench1shot1_3"]:
+    if cfg.SPACE.NAME == 'darts':
+        distribution_optimizer = sng_builder([search_space.num_ops]*search_space.all_edges)
+    elif cfg.SPACE.NAME in ['proxyless', 'google', 'ofa']:
+        distribution_optimizer = sng_builder([search_space.num_ops]*search_space.all_edges)
+    elif cfg.SPACE.NAME in ["nasbench1shot1_1", "nasbench1shot1_2", "nasbench1shot1_3"]:
         category = []
         cs = search_space.search_space.get_configuration_space()
         for h in cs.get_hyperparameters():
@@ -114,7 +117,11 @@ def train_model():
                 category.append(len(h.choices))
         distribution_optimizer = sng_builder(category)
     else:
-        distribution_optimizer = sng_builder([search_space.num_ops]*search_space.all_edges)
+        raise NotImplementedError
+
+    # Load dataset
+    [train_, val_] = construct_loader(
+        cfg.SEARCH.DATASET, cfg.SEARCH.SPLIT, cfg.SEARCH.BATCH_SIZE)
 
     lr_scheduler = lr_scheduler_builder(w_optim)
     all_timer = Timer()
