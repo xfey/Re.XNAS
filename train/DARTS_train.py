@@ -18,6 +18,7 @@ from xnas.core.builders import build_loss_fun, lr_scheduler_builder
 from xnas.core.trainer import setup_env
 from xnas.search_space.cellbased_DARTS_cnn import AugmentCNN
 from xnas.datasets.loader import construct_loader
+
 device = torch.device("cuda")
 
 writer = SummaryWriter(log_dir=os.path.join(cfg.OUT_DIR, "tb"))
@@ -74,7 +75,7 @@ def main():
     start_epoch = 0
     for cur_epoch in range(start_epoch, cfg.TRAIN.MAX_EPOCH):
         
-        drop_prob = cfg.TRAIN.DROP_PATH_PROB * cur_epoch / cfg.OPTIM.MAX_EPOCH
+        drop_prob = cfg.TRAIN.DROP_PATH_PROB * cur_epoch / cfg.TRAIN.MAX_EPOCH
         if cfg.NUM_GPUS > 1:
             model.module.drop_path_prob(drop_prob)
         else:
