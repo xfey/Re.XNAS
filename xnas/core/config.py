@@ -22,6 +22,24 @@ cfg = _C
 # ------------------------------------------------------------------------------------ #
 _C.TRAIN = CfgNode()
 
+# Train epoch
+_C.TRAIN.MAX_EPOCH = 600
+
+# Checkpoint period
+_C.TRAIN.CHECKPOINT_PERIOD = 1
+
+# Dataset
+_C.TRAIN.DATASET = "cifar10"
+
+# data path using in indepandent train
+_C.TRAIN.DATAPATH = "/gdata/cifar10/"
+
+# Split
+_C.TRAIN.SPLIT = [0.8, 0.2]
+
+# Total mini-batch size
+_C.TRAIN.BATCH_SIZE = 96
+
 _C.TRAIN.DROP_PATH_PROB = 0.2
 
 _C.TRAIN.LAYERS = 20

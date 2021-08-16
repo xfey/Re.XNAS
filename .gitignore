@@ -14,6 +14,7 @@ tmp/
 benchmark/
 test.py
 test.ipynb
+nohup.out
 
 # C extensions
 *.so

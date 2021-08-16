@@ -41,7 +41,7 @@ def main():
     setup_env()
 
     input_size, input_channels, n_classes, train_data, valid_data = get_data(
-        cfg.SEARCH.DATASET, cfg.SEARCH.DATAPATH, cfg.TRAIN.CUTOUT_LENGTH, validation=True)
+        cfg.TRAIN.DATASET, cfg.TRAIN.DATAPATH, cfg.TRAIN.CUTOUT_LENGTH, validation=True)
 
     # 32 3 10 === 32 16 10
     # print(input_size, input_channels, n_classes, '===', cfg.SEARCH.IM_SIZE, cfg.SPACE.CHANNEL, cfg.SEARCH.NUM_CLASSES)
@@ -49,8 +49,9 @@ def main():
     loss_fun = build_loss_fun().cuda()
     use_aux = cfg.TRAIN.AUX_WEIGHT > 0.
 
-    model = AugmentCNN(input_size, input_channels, cfg.TRAIN.INIT_CHANNELS, n_classes, cfg.TRAIN.LAYERS,
-                       use_aux, cfg.TRAIN.GENOTYPE)
+    # IM_SIZE, CHANNEL and NUM_CLASSES should be same with search period.
+    model = AugmentCNN(cfg.SEARCH.IM_SIZE, cfg.SEARCH.CHANNEL, cfg.TRAIN.INIT_CHANNELS, 
+                       cfg.SEARCH.NUM_CLASSES, cfg.TRAIN.LAYERS, use_aux, cfg.TRAIN.GENOTYPE)
 
     # TODO: Parallel
     # model = nn.DataParallel(model, device_ids=cfg.NUM_GPUS).to(device)
@@ -62,11 +63,11 @@ def main():
 
     # Get data loader
     [train_loader, valid_loader] = construct_loader(
-        cfg.SEARCH.DATASET, cfg.SEARCH.SPLIT, cfg.SEARCH.BATCH_SIZE)
+        cfg.TRAIN.DATASET, cfg.TRAIN.SPLIT, cfg.TRAIN.BATCH_SIZE)
 
     lr_scheduler = lr_scheduler_builder(optimizer)
 
-    best_top1 = 0.
+    best_top1err = 0.
 
     # TODO: DALI backend support
     # if config.data_loader_type == 'DALI':
@@ -81,7 +82,7 @@ def main():
     valid_meter = meters.TestMeter(len(valid_loader))
 
     start_epoch = 0
-    for cur_epoch in range(start_epoch, cfg.OPTIM.MAX_EPOCH):
+    for cur_epoch in range(start_epoch, cfg.TRAIN.MAX_EPOCH):
         
         drop_prob = cfg.TRAIN.DROP_PATH_PROB * cur_epoch / cfg.OPTIM.MAX_EPOCH
         if cfg.NUM_GPUS > 1:
@@ -94,7 +95,7 @@ def main():
                     loss_fun, cur_epoch, train_meter)
 
         # Save a checkpoint
-        if (cur_epoch + 1) % cfg.SEARCH.CHECKPOINT_PERIOD == 0:
+        if (cur_epoch + 1) % cfg.TRAIN.CHECKPOINT_PERIOD == 0:
             checkpoint_file = checkpoint.save_checkpoint(
                 model, optimizer, cur_epoch)
             logger.info("Wrote checkpoint to: {}".format(checkpoint_file))
@@ -103,12 +104,12 @@ def main():
 
         # Validation
         cur_step = (cur_epoch + 1) * len(train_loader)
-        top1 = valid_epoch(valid_loader, model, loss_fun,
+        top1_err = valid_epoch(valid_loader, model, loss_fun,
                            cur_epoch, cur_step, valid_meter)
-        logger.info("top1 error@epoch {}: {}".format(cur_epoch + 1, top1))
-        best_top1 = max(best_top1, top1)
+        logger.info("top1 error@epoch {}: {}".format(cur_epoch + 1, top1_err))
+        best_top1err = min(best_top1err, top1_err)
 
-    logger.info("Final best Prec@1 = {:.4%}".format(best_top1))
+    logger.info("Final best Prec@1 = {:.4%}".format(100 - best_top1err))
 
 
 def train_epoch(train_loader, model, optimizer, criterion, cur_epoch, train_meter):
