@@ -82,7 +82,7 @@ def main():
 
     start_epoch = 0
     for cur_epoch in range(start_epoch, cfg.OPTIM.MAX_EPOCH):
-
+        
         drop_prob = cfg.TRAIN.DROP_PATH_PROB * cur_epoch / cfg.OPTIM.MAX_EPOCH
         if cfg.NUM_GPUS > 1:
             model.module.drop_path_prob(drop_prob)
@@ -105,6 +105,8 @@ def main():
         cur_step = (cur_epoch + 1) * len(train_loader)
         top1 = valid_epoch(valid_loader, model, loss_fun,
                            cur_epoch, cur_step, valid_meter)
+        logger.info("top1 error@epoch {}: {}".format(cur_epoch + 1, top1))
+        best_top1 = max(best_top1, top1)
 
     logger.info("Final best Prec@1 = {:.4%}".format(best_top1))
 
