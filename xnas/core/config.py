@@ -22,8 +22,8 @@ cfg = _C
 # ------------------------------------------------------------------------------------ #
 _C.TRAIN = CfgNode()
 
-# Train epoch
-_C.TRAIN.MAX_EPOCH = 600
+# Train epoch: use OPTIM.MAX_EPOCH instead.
+# _C.TRAIN.MAX_EPOCH = 600
 
 # Checkpoint period
 _C.TRAIN.CHECKPOINT_PERIOD = 1

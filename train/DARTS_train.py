@@ -73,9 +73,9 @@ def main():
     valid_meter = meters.TestMeter(len(valid_loader))
 
     start_epoch = 0
-    for cur_epoch in range(start_epoch, cfg.TRAIN.MAX_EPOCH):
+    for cur_epoch in range(start_epoch, cfg.OPTIM.MAX_EPOCH):
         
-        drop_prob = cfg.TRAIN.DROP_PATH_PROB * cur_epoch / cfg.TRAIN.MAX_EPOCH
+        drop_prob = cfg.TRAIN.DROP_PATH_PROB * cur_epoch / cfg.OPTIM.MAX_EPOCH
         if cfg.NUM_GPUS > 1:
             model.module.drop_path_prob(drop_prob)
         else:
