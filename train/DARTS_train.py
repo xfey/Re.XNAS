@@ -40,8 +40,9 @@ def main():
     loss_fun = build_loss_fun().cuda()
     use_aux = cfg.TRAIN.AUX_WEIGHT > 0.
 
+    # SEARCH.INIT_CHANNEL as 3 for rgb and TRAIN.CHANNELS as 32 by manual.
     # IM_SIZE, CHANNEL and NUM_CLASSES should be same with search period.
-    model = AugmentCNN(cfg.SEARCH.IM_SIZE, cfg.SEARCH.CHANNEL, cfg.TRAIN.INIT_CHANNELS, 
+    model = AugmentCNN(cfg.SEARCH.IM_SIZE, cfg.SEARCH.INPUT_CHANNEL, cfg.TRAIN.CHANNELS, 
                        cfg.SEARCH.NUM_CLASSES, cfg.TRAIN.LAYERS, use_aux, cfg.TRAIN.GENOTYPE)
 
     # TODO: Parallel

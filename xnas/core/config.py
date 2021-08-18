@@ -44,7 +44,7 @@ _C.TRAIN.DROP_PATH_PROB = 0.2
 
 _C.TRAIN.LAYERS = 20
 
-_C.TRAIN.INIT_CHANNELS = 36
+_C.TRAIN.CHANNELS = 36
 
 _C.TRAIN.AUX_WEIGHT = 0.4
 
@@ -86,7 +86,7 @@ _C.SEARCH.BATCH_SIZE = 256
 _C.SEARCH.IM_SIZE = 32
 
 # Image channel (rgb=3)
-_C.SEARCH.CHANNEL = 3
+_C.SEARCH.INPUT_CHANNEL = 3
 
 # Loss function
 _C.SEARCH.LOSS_FUN = 'cross_entropy'
@@ -119,7 +119,6 @@ _C.SPACE.NAME = 'darts'
 
 # Loss function
 _C.SPACE.LOSS_FUN = 'cross_entropy'
-
 
 # channel after first layer (e.g. rgb=3 -> 16 here)
 _C.SPACE.CHANNEL = 16
