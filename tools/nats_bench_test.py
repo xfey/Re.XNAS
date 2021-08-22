@@ -102,7 +102,7 @@ def _test_nats_bench(benchmark_dir, is_tss, fake_random, verbose=False):
         api = NATSsize(benchmark_dir, True, verbose)
 
     if fake_random:
-        test_indexes = [0, 11, 284]
+        test_indexes = [11]
     else:
         test_indexes = [random.randint(0, len(api) - 1) for _ in range(10)]
 
@@ -112,6 +112,7 @@ def _test_nats_bench(benchmark_dir, is_tss, fake_random, verbose=False):
         print("\n\nEvaluate the {:5d}-th architecture.".format(index))
 
         for key, dataset in key2dataset.items():
+            print("")
             # Query the loss / accuracy / time for the `index`-th candidate
             #   architecture on CIFAR-10
             # info is a dict, where you can easily figure out the meaning by key

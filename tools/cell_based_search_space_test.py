@@ -31,7 +31,7 @@ def basic_darts_cnn_test():
     print(time_.average_time)
 
 
-def basic_nas_bench_201_cnn():
+def basic_nas_bench_201_cnn_test():
     #  nas_bench_201 test
     time_ = Timer()
     print("Testing nas bench 201 CNN")
@@ -57,4 +57,5 @@ def basic_nas_bench_201_cnn():
 
 if __name__ == "__main__":
     basic_darts_cnn_test()
+    basic_nas_bench_201_cnn_test()
     pass
