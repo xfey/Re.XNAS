@@ -228,7 +228,7 @@ def train_model():
         test_epoch_with_sample(val_, search_space, val_meter, _over_all_epoch, sample, writer)
     logger.info("Overall training time : {} hours".format(str((all_timer.total_time)/3600.)))
 
-    # whether to evaluate through nasbench ;
+    # Evaluate through nasbench
     if cfg.SPACE.NAME in ["nasbench201", "nasbench1shot1_1", "nasbench1shot1_2", "nasbench1shot1_3"]:
         logger.info("starting test using nasbench:{}".format(cfg.SPACE.NAME))
         theta = distribution_optimizer.p_model.theta
