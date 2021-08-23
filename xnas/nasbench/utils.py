@@ -1,5 +1,6 @@
-from xnas.nasbench.nasbench1shot1 import Eval_nasbench1shot1
-from xnas.nasbench.nasbench201 import Eval_nasbench201
+from xnas.nasbench.nb1shot1 import Eval_nasbench1shot1
+from xnas.nasbench.nb201 import Eval_nasbench201
+from xnas.nasbench.nb301 import Eval_nasbench301
 
 
 def EvaluateNasbench(theta, search_space, logger, NASbenchName):
@@ -9,3 +10,5 @@ def EvaluateNasbench(theta, search_space, logger, NASbenchName):
         Eval_nasbench1shot1(theta, search_space, logger)
     elif NASbenchName == "nasbench201":
         Eval_nasbench201(theta, search_space, logger)
+    elif NASbenchName == "nasbench301":
+        Eval_nasbench301(theta, search_space, logger)

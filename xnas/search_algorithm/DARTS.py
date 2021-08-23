@@ -38,6 +38,7 @@ class DartsCNNController(nn.Module):
             raise NotImplementedError
 
     def genotype(self):
+        """return genotype of DARTS CNN"""
         return self.net.genotype(self.alpha.cpu().detach().numpy())
 
     def weights(self):
