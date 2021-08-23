@@ -5,11 +5,11 @@ from xnas.search_space.cellbased_1shot1_ops import INPUT, OUTPUT, CONV1X1, CONV3
 
 from nasbench import api
 
-nasbench1shot1_path = 'benchmark/nasbench_full.tfrecord'
-nasbench = api.NASBench(nasbench1shot1_path)
-
 
 def Eval_nasbench1shot1(theta, search_space, logger):
+    nasbench1shot1_path = 'benchmark/nasbench_full.tfrecord'
+    nasbench = api.NASBench(nasbench1shot1_path)
+    
     current_best = np.argmax(theta, axis=1)
     config = ConfigSpace.Configuration(
         search_space.search_space.get_configuration_space(), vector=current_best)
