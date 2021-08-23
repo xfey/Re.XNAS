@@ -380,8 +380,6 @@ _C.DARTS.ALPHA_LR = 3e-4
 
 _C.DARTS.ALPHA_WEIGHT_DECAY = 1e-3
 
-_C.DARTS.NASBENCH = False
-
 
 # ------------------------------------------------------------------------------------ #
 # PDARTS search options

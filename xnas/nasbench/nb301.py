@@ -44,7 +44,7 @@ def init_model(version=0.9, download_dir="./301model"):
 
 def Eval_nasbench301(theta, search_space, logger):
     """
-    Evaluate with nasbench301, space=DARTS
+    Evaluate with nasbench301, space=DARTS/nasbench301
 
     Genotype = namedtuple('Genotype', 'normal normal_concat reduce reduce_concat')
     genotype = Genotype(

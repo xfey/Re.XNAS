@@ -98,7 +98,7 @@ def darts_train_model():
             logger.info(darts_controller.genotype())
             logger.info(
                 "########################################################")
-            if cfg.DARTS.NASBENCH:
+            if cfg.SPACE.NAME == "nasbench301":
                 logger.info("Evaluating with nasbench301")
                 EvaluateNasbench(None, darts_controller, logger, "nasbench301")
 

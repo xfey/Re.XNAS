@@ -44,7 +44,7 @@ def random_sampling(search_space, distribution_optimizer, epoch=-1000, _random=F
         # Edge importance
         non_edge_idx = []
         if cfg.SNG.EDGE_SAMPLING and epoch > cfg.SNG.EDGE_SAMPLING_EPOCH:
-            assert cfg.SPACE.NAME == 'darts', "only support darts for now!"
+            assert cfg.SPACE.NAME in ['darts', 'nasbench301'], "only support darts for now!"
             norm_indexes = search_space.norm_node_index
             non_edge_idx = []
             for node in norm_indexes:
@@ -108,7 +108,7 @@ def train_model():
                               weight_decay=cfg.OPTIM.WEIGHT_DECAY)
     
     # Build distribution_optimizer
-    if cfg.SPACE.NAME == 'darts':
+    if cfg.SPACE.NAME in ['darts', 'nasbench301']:
         distribution_optimizer = sng_builder([search_space.num_ops]*search_space.all_edges)
     elif cfg.SPACE.NAME in ['proxyless', 'google', 'ofa']:
         distribution_optimizer = sng_builder([search_space.num_ops]*search_space.all_edges)
@@ -219,7 +219,7 @@ def train_model():
                 search_space, w_optim, _over_all_epoch)
             logger.info("Wrote checkpoint to: {}".format(checkpoint_file))
         
-        if cfg.SPACE.NAME == 'darts':
+        if cfg.SPACE.NAME in ['darts', 'nasbench301']:
             genotype = search_space.genotype(distribution_optimizer.p_model.theta)
             sample = search_space.genotype_to_onehot_sample(genotype)
         else:
@@ -230,14 +230,10 @@ def train_model():
     logger.info("Overall training time : {} hours".format(str((all_timer.total_time)/3600.)))
 
     # Evaluate through nasbench
-    if cfg.SPACE.NAME in ["nasbench201", "nasbench1shot1_1", "nasbench1shot1_2", "nasbench1shot1_3"]:
+    if cfg.SPACE.NAME in ["nasbench1shot1_1", "nasbench1shot1_2", "nasbench1shot1_3", "nasbench201", "nasbench301"]:
         logger.info("starting test using nasbench:{}".format(cfg.SPACE.NAME))
         theta = distribution_optimizer.p_model.theta
         EvaluateNasbench(theta, search_space, logger, cfg.SPACE.NAME)
-    elif cfg.SPACE.NAME == 'darts' and cfg.DARTS.NASBENCH:
-        logger.info("starting test using nasbench:nasbench301")
-        theta = distribution_optimizer.p_model.theta
-        EvaluateNasbench(theta, search_space, logger, "nasbench301")
 
 
 def train_epoch(train_loader, valid_loader, model, w_optim, lr, cur_epoch, sample, net_crit, train_meter):

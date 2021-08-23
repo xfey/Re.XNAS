@@ -155,7 +155,7 @@ def graph_plot(genotype, file_path, caption=None, search_space='darts', n_nodes=
         engine='dot')
     g.body.extend(['rankdir=LR'])
 
-    if search_space == 'darts':
+    if search_space in ['darts', 'nasbench301']:
         # input nodes
         g.node("c_{k-2}", fillcolor='darkseagreen2')
         g.node("c_{k-1}", fillcolor='darkseagreen2')
