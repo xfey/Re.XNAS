@@ -13,6 +13,7 @@ from xnas.core.builders import build_space, build_loss_fun, lr_scheduler_builder
 from xnas.core.config import cfg
 from xnas.core.trainer import setup_env, test_epoch
 from xnas.datasets.loader import construct_loader
+from xnas.nasbench.utils import EvaluateNasbench
 from xnas.search_algorithm.DARTS import *
 
 
@@ -97,6 +98,9 @@ def darts_train_model():
             logger.info(darts_controller.genotype())
             logger.info(
                 "########################################################")
+            logger.info("Evaluating with nasbench301")
+            EvaluateNasbench(None, darts_controller, logger, "nasbench301")
+
             darts_controller.print_alphas(logger)
         if torch.cuda.is_available():
             torch.cuda.synchronize()
