@@ -1,3 +1,4 @@
+from xnas.search_space.cellbased_1shot1_ops import SearchSpace
 import ConfigSpace
 import numpy as np
 import random
@@ -233,6 +234,10 @@ def train_model():
         logger.info("starting test using nasbench:{}".format(cfg.SPACE.NAME))
         theta = distribution_optimizer.p_model.theta
         EvaluateNasbench(theta, search_space, logger, cfg.SPACE.NAME)
+    elif cfg.SPACE.NAME == 'darts' and cfg.DARTS.NASBENCH:
+        logger.info("starting test using nasbench:nasbench301")
+        theta = distribution_optimizer.p_model.theta
+        EvaluateNasbench(theta, search_space, logger, "nasbench301")
 
 
 def train_epoch(train_loader, valid_loader, model, w_optim, lr, cur_epoch, sample, net_crit, train_meter):

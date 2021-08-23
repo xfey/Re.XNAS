@@ -32,10 +32,10 @@ _spaces = {
     "ofa": _MobileNetV3CNN,
     "proxyless": _ProxylessCNN,
     "google": _Proxyless_Google_CNN,
-    "nasbench201": _NASBench201,
     "nasbench1shot1_1": _NASbench1shot1_1,
     "nasbench1shot1_2": _NASbench1shot1_2,
-    "nasbench1shot1_3": _NASbench1shot1_3
+    "nasbench1shot1_3": _NASbench1shot1_3,
+    "nasbench201": _NASBench201
 }
 
 # Supported loss functions

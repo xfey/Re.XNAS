@@ -98,8 +98,9 @@ def darts_train_model():
             logger.info(darts_controller.genotype())
             logger.info(
                 "########################################################")
-            logger.info("Evaluating with nasbench301")
-            EvaluateNasbench(None, darts_controller, logger, "nasbench301")
+            if cfg.DARTS.NASBENCH:
+                logger.info("Evaluating with nasbench301")
+                EvaluateNasbench(None, darts_controller, logger, "nasbench301")
 
             darts_controller.print_alphas(logger)
         if torch.cuda.is_available():
