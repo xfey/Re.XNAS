@@ -80,13 +80,6 @@ def darts_train_model():
     train_timer.tic()
     for cur_epoch in range(start_epoch, cfg.OPTIM.MAX_EPOCH):
 
-        # testing
-        # TODO: format arch in 301
-        if cfg.SPACE.NAME == "nasbench301":
-            logger.info("Evaluating with nasbench301")
-            print(darts_controller.net.genotype(darts_controller.alpha))
-            EvaluateNasbench(darts_controller.alpha, darts_controller.net, logger, "nasbench301")
-
         lr = lr_scheduler.get_last_lr()[0]
         train_epoch(train_, val_, darts_controller, architect,
                     loss_fun, w_optim, a_optim, lr, train_meter, cur_epoch)
@@ -107,9 +100,9 @@ def darts_train_model():
             logger.info(
                 "########################################################")
 
-            # if cfg.SPACE.NAME == "nasbench301":
-            #     logger.info("Evaluating with nasbench301")
-            #     EvaluateNasbench(darts_controller.alpha, darts_controller.net, logger, "nasbench301")
+            if cfg.SPACE.NAME == "nasbench301":
+                logger.info("Evaluating with nasbench301")
+                EvaluateNasbench(darts_controller.alpha, darts_controller.net, logger, "nasbench301", reformat='DARTS')
 
             darts_controller.print_alphas(logger)
         if torch.cuda.is_available():

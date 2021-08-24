@@ -1,6 +1,8 @@
 import os
+from collections import namedtuple
 
 import nasbench301 as nb
+from torch import ge, normal
 
 download_dir = './301model'
 version = '0.9'
@@ -42,7 +44,7 @@ def init_model(version=0.9, download_dir="./301model"):
     return performance_model, runtime_model
 
 
-def Eval_nasbench301(theta, search_space, logger):
+def Eval_nasbench301(theta, search_space, logger, reformat):
     """
     Evaluate with nasbench301, space=DARTS/nasbench301
 
@@ -56,6 +58,10 @@ def Eval_nasbench301(theta, search_space, logger):
     """
     performance_model, runtime_model = init_model(version, download_dir)
     genotype = search_space.genotype(theta)
+    
+    # reformat the output from search codes
+    if reformat == 'DARTS':
+        genotype = reformat_DARTS(genotype)
     prediction_genotype = performance_model.predict(
         config=genotype, representation="genotype", with_noise=True)
     runtime_genotype = runtime_model.predict(
@@ -76,3 +82,30 @@ def Eval_nasbench301(theta, search_space, logger):
     # prediction_configspace = performance_model.predict(config=configspace_config, representation="configspace", with_noise=True)
     # runtime_configspace = runtime_model.predict(config=configspace_config, representation="configspace")
     # print("Configspace architecture performance: %f, runtime %f" %(prediction_configspace, runtime_configspace))
+
+def reformat_DARTS(genotype):
+    """
+    format genotype for DARTS-like
+    from:
+        Genotype(normal=[[('sep_conv_3x3', 1), ('sep_conv_5x5', 0)], [('sep_conv_3x3', 2), ('max_pool_3x3', 1)], [('sep_conv_3x3', 3), ('dil_conv_3x3', 2)], [('dil_conv_5x5', 4), ('dil_conv_5x5', 3)]], normal_concat=range(2, 6), reduce=[[('max_pool_3x3', 0), ('sep_conv_5x5', 1)], [('max_pool_3x3', 0), ('dil_conv_5x5', 2)], [('max_pool_3x3', 0), ('sep_conv_5x5', 1)], [('dil_conv_5x5', 4), ('max_pool_3x3', 0)]], reduce_concat=range(2, 6))
+    to:
+        Genotype(normal=[('sep_conv_3x3', 0), ('sep_conv_3x3', 1), ('sep_conv_3x3', 0), ('sep_conv_3x3', 1), ('sep_conv_3x3', 1), ('skip_connect', 0), ('skip_connect', 0), ('dil_conv_3x3', 2)], normal_concat=[2, 3, 4, 5], reduce=[('max_pool_3x3', 0), ('max_pool_3x3', 1), ('skip_connect', 2), ('max_pool_3x3', 1), ('max_pool_3x3', 0), ('skip_connect', 2), ('skip_connect', 2), ('max_pool_3x3', 1)], reduce_concat=[2, 3, 4, 5])
+    """
+    Genotype = namedtuple('Genotype', 'normal normal_concat reduce reduce_concat')
+    _normal = []
+    _reduce = []
+    for i in genotype.normal:
+        for j in i:
+            _normal.append(j)
+    for i in genotype.reduce:
+        for j in i:
+            _reduce.append(j)
+    _normal_concat = [i for i in genotype.normal_concat]
+    _reduce_concat = [i for i in genotype.reduce_concat]
+    r_genotype = Genotype(
+        normal=_normal,
+        normal_concat=_normal_concat,
+        reduce=_reduce,
+        reduce_concat=_reduce_concat
+    )
+    return r_genotype
