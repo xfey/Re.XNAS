@@ -102,7 +102,7 @@ def darts_train_model():
 
             if cfg.SPACE.NAME == "nasbench301":
                 logger.info("Evaluating with nasbench301")
-                EvaluateNasbench(darts_controller.alpha, darts_controller.net, logger, "nasbench301", reformat='DARTS')
+                EvaluateNasbench(darts_controller.alpha, darts_controller.net, logger, "nasbench301")
 
             darts_controller.print_alphas(logger)
         if torch.cuda.is_available():

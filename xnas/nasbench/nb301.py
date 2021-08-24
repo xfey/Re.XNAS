@@ -44,7 +44,7 @@ def init_model(version=0.9, download_dir="./301model"):
     return performance_model, runtime_model
 
 
-def Eval_nasbench301(theta, search_space, logger, reformat):
+def Eval_nasbench301(theta, search_space, logger):
     """
     Evaluate with nasbench301, space=DARTS/nasbench301
 
@@ -58,10 +58,10 @@ def Eval_nasbench301(theta, search_space, logger, reformat):
     """
     performance_model, runtime_model = init_model(version, download_dir)
     genotype = search_space.genotype(theta)
-    
-    # reformat the output from search codes
-    if reformat == 'DARTS':
-        genotype = reformat_DARTS(genotype)
+
+    # reformat the output of DartsCNN.genotype()
+    genotype = reformat_DARTS(genotype)
+
     prediction_genotype = performance_model.predict(
         config=genotype, representation="genotype", with_noise=True)
     runtime_genotype = runtime_model.predict(
