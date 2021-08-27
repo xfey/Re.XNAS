@@ -6,7 +6,6 @@
 """Compute model and loader timings."""
 
 import os
-import test
 import xnas.core.benchmark as benchmark
 import xnas.core.config as config
 import xnas.core.logging as logging

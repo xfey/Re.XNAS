@@ -47,4 +47,3 @@ def cifar10_test():
 if __name__ == "__main__":
     cifar10_test()
     # image_folder_test()
-    pass
