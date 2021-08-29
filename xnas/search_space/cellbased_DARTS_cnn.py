@@ -300,6 +300,19 @@ class AugmentCNN(nn.Module):
         logits = self.linear(out)
         return logits, aux_logits
 
+    def feature_extractor(self, x):
+        """NOTE: extractor for nodes in cell may cause difference."""
+        s0 = s1 = self.stem(x)
+        feature = []
+        feature.append(s1)
+        for i, cell in enumerate(self.cells):
+            s0, s1 = s1, cell(s0, s1)
+            feature.append(s1)
+
+        out = self.gap(s1)
+        feature.append(out)
+        return feature
+
     def drop_path_prob(self, p):
         """ Set drop path probability """
         for module in self.modules():
