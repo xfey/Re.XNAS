@@ -1,0 +1,26 @@
+# feature size: the first place of tensor is batch-size
+
+torch.Size([64, 108, 32, 32])
+torch.Size([64, 144, 32, 32])
+torch.Size([64, 144, 32, 32])
+torch.Size([64, 144, 32, 32])
+torch.Size([64, 144, 32, 32])
+torch.Size([64, 144, 32, 32])
+torch.Size([64, 144, 32, 32]) <-
+torch.Size([64, 288, 16, 16])
+torch.Size([64, 288, 16, 16])
+torch.Size([64, 288, 16, 16])
+torch.Size([64, 288, 16, 16])
+torch.Size([64, 288, 16, 16])
+torch.Size([64, 288, 16, 16])
+torch.Size([64, 288, 16, 16]) <-
+torch.Size([64, 576, 8, 8])
+torch.Size([64, 576, 8, 8])
+torch.Size([64, 576, 8, 8])
+torch.Size([64, 576, 8, 8])
+torch.Size([64, 576, 8, 8])
+torch.Size([64, 576, 8, 8])
+torch.Size([64, 576, 8, 8]) <-
+torch.Size([64, 576, 1, 1])
+
+# Mention: 4th layer(feature[3]) cause NAN, whose numbers are much smaller than other layers.

@@ -82,9 +82,9 @@ def main():
     with torch.no_grad():
         feature = model.feature_extractor(data_X)
 
-    # for i in feature:
-        # print(i)
-    print(feature[3])
+    for i in feature:
+        print(i.size())
+    
     # data_X.size()[0] = cfg.TRAIN.BATCH_SIZE
 
     for i in range(len(feature)):
