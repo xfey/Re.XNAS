@@ -17,28 +17,9 @@ export PYTHONPATH=$PYTHONPATH:/Path/to/XNAS
 # set gpu devices
 export CUDA_VISIBLE_DEVICES=0
 # unit test example
-python test/sng_function_optimization.py
+python tools/test_func/sng_function_optimization.py
 # train example
-python tools/train_darts.py --cfg configs/search/darts.yaml
+python train/DARTS_train.py --cfg configs/search/darts.yaml
 # replace config example
-python tools/train_darts.py --cfg configs/search/darts.yaml OUT_DIR /username/project/XNAS/experiment/darts/test1
+python train/DARTS_train.py --cfg configs/search/darts.yaml OUT_DIR /username/project/XNAS/experiment/darts/test1
 ```
-
-## Timeline
-
-- [x] core
-- [x] datasets/utils
-- [x] datasets: cifar10 & imagenet (with test case)
-- [x] search_space/mb (inherit)
-- [x] search_space/cellbased (with test case)
-- [x] DARTS
-- [x] PDARTS, PCDARTS
-- [x] core: trainer & builder
-- [x] merge config space
-- [x] search: DARTS_search
-- [x] search: PDARTS & PCDARTS
-- [x] search_algorithm: SNG and more (add to builder)
-- [x] test: SNG_optimizer, SNG_1shot1
-- [x] search: SNG_search
-
-- [x] train: DARTS_train
