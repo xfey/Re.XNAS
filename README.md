@@ -1,3 +1,8 @@
+This repository is an experimental branch checked out from XNAS and has been deprecated. 
+
+For future updates, please check out: https://github.com/MAC-AutoML/XNAS.git
+
+
 # XNAS
 
 **XNAS** is an effective neural architecture search codebase, written in [PyTorch](https://pytorch.org/).
